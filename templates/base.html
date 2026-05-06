@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Турагентство{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <a href="{% url 'index' %}" class="logo">TravelWay</a>
+
+            <nav class="nav">
+                <a href="{% url 'index' %}">Главная</a>
+                <a href="#tours">Туры</a>
+                <a href="#about">О нас</a>
+                <a href="#contacts">Контакты</a>
+            </nav>
+
+            <a href="{% url 'catalog' %}" class="header__btn">Подобрать тур</a>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer" id="contacts">
+        <div class="container footer__grid">
+            <div>
+                <h3>TravelWay</h3>
+                <p>Подбор туров, отелей и путешествий под ваш бюджет.</p>
+            </div>
+            <div>
+                <h4>Контакты</h4>
+                <p>+7 (999) 123-45-67</p>
+                <p>info@travelway.ru</p>
+            </div>
+            <div>
+                <h4>Навигация</h4>
+                <p><a href="{% url 'index' %}">Главная</a></p>
+                <p><a href="{% url 'catalog' %}">Туры</a></p>
+                <p><a href="#about">О нас</a></p>
+            </div>
+        </div>
+    </footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

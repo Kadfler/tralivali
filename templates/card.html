@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Карточка тура{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1>{{ tour.name }}</h1>
+            <p><strong>Страна:</strong> {{ tour.country }}</p>
+            <p><strong>Длительность:</strong> {{ tour.program_id.duration }} дней</p>
+            <p><strong>Количество людей:</strong> {{ tour.people }}</p>
+            <p><strong>Цена:</strong> {{ tour.cost_for_one_person }} ₽</p>
+            <a href="{% url 'catalog' %}" class="btn btn-secondary">Назад</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

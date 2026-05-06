@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Турагентство TravelWay{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero__inner">
+        <div class="hero__content">
+            <span class="hero__badge">Турагентство мечты</span>
+            <h1>Путешествия, которые запомнятся надолго</h1>
+            <p>
+                Подберём туры по России и миру, найдём лучшие отели, авиабилеты и готовые пакеты
+                под ваш бюджет и даты.
+            </p>
+            <div class="hero__actions">
+                <a href="#booking" class="btn btn--primary">Подобрать тур</a>
+                <a href="#tours" class="btn btn--secondary">Смотреть направления</a>
+            </div>
+        </div>
+
+        <div class="hero__card">
+            <h3>Быстрый подбор</h3>
+            <form class="search-form">
+                <input type="text" placeholder="Куда хотите поехать?">
+                <input type="date">
+                <select>
+                    <option>1 турист</option>
+                    <option>2 туриста</option>
+                    <option>3 туриста</option>
+                    <option>4+ туристов</option>
+                </select>
+                <button type="submit">Найти тур</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="container stats__grid">
+        <div class="stat">
+            <strong>1200+</strong>
+            <span>довольных клиентов</span>
+        </div>
+        <div class="stat">
+            <strong>50+</strong>
+            <span>направлений</span>
+        </div>
+        <div class="stat">
+            <strong>24/7</strong>
+            <span>поддержка клиентов</span>
+        </div>
+    </div>
+</section>
+
+<section class="features" id="about">
+    <div class="container">
+        <h2 class="section-title">Почему выбирают нас</h2>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Лучшие предложения</h3>
+                <p>Подбираем выгодные туры, горящие предложения и проверенные отели.</p>
+            </div>
+
+            <div class="card">
+                <h3>Персональный подход</h3>
+                <p>Учитываем бюджет, даты, состав группы и ваши пожелания к отдыху.</p>
+            </div>
+
+            <div class="card">
+                <h3>Полное сопровождение</h3>
+                <p>Помогаем от заявки до возвращения: документы, бронирование, консультации.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tours" id="tours">
+    <div class="container">
+        <h2 class="section-title">Популярные направления</h2>
+
+        <div class="tour-grid">
+            <article class="tour-card">
+                <h3>Турция</h3>
+                <p>Море, all inclusive, семейный отдых.</p>
+                <span>от 85 000 ₽</span>
+            </article>
+
+            <article class="tour-card">
+                <h3>ОАЭ</h3>
+                <p>Пляжи, шопинг, современный комфорт.</p>
+                <span>от 120 000 ₽</span>
+            </article>
+
+            <article class="tour-card">
+                <h3>Таиланд</h3>
+                <p>Экзотика, экскурсии и тёплое море.</p>
+                <span>от 110 000 ₽</span>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="booking" id="booking">
+    <div class="container booking__box">
+        <h2>Нужен тур под ваши даты?</h2>
+        <p>Оставьте заявку, и мы подберём лучший вариант за короткое время.</p>
+        <a href="#contacts" class="btn btn--primary">Связаться с нами</a>
+    </div>
+</section>
+{% endblock %}
