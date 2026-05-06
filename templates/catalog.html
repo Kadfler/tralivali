@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог туров{% endblock %}
+
+{% block content %}
+<section class="catalog">
+    <div class="container">
+        <h1 class="section-title">Каталог туров</h1>
+
+        <form method="get" class="filter-form">
+            <input type="text" name="name" placeholder="Название тура" value="{{ name }}">
+            <input type="text" name="country" placeholder="Страна" value="{{ country }}">
+            <input type="number" name="duration" placeholder="Длительность, дней" value="{{ duration }}">
+            <input type="number" name="people" placeholder="Количество человек" value="{{ people }}">
+
+            <button type="submit" class="btn btn--primary">Фильтровать</button>
+            <a href="{% url 'catalog' %}" class="btn btn--secondary">Сбросить</a>
+        </form>
+
+        <div class="tour-grid" >
+    {% for tour in tours %}
+    <article class="tour-card">
+        <h3>{{ tour.name }}</h3>
+        <p><strong>Страна:</strong> {{tour.country}}</p>
+        <p><strong>Длительность:</strong> {{tour.duration}} дней</p>
+        <p><strong>Количество людей:</strong> {{tour.persons}}</p>
+        <a href="{% url 'tour_card' tour.pk %}" class="btn btn-primary">Подробнее</a>
+    </article>
+    {% empty %}
+    <p>Туры не найдены.</p>
+    {% endfor %}
+</div>
+    </div>
+</section>
+{% endblock %}
