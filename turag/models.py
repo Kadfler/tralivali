@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class Order(models.Model):
@@ -65,12 +66,12 @@ class TourOperator(models.Model):
     def __str__(self):
         return self.name
 
+
 class Tour(models.Model):
     tour_id = models.AutoField(primary_key=True)
     country = models.CharField(max_length=100, default="")
     name = models.TextField()
     description = models.TextField()
-    comments = models.ManyToManyField(Comment, default="")
     hotel_id = models.ForeignKey('Hotel', on_delete=models.CASCADE)
     transport_id = models.ForeignKey('Transport', on_delete=models.CASCADE)
     program_id = models.ForeignKey('Program', on_delete=models.CASCADE)
@@ -80,6 +81,16 @@ class Tour(models.Model):
     cost_for_one_person = models.IntegerField(default=0)
     duration = models.PositiveIntegerField(default=0)
     persons = models.PositiveIntegerField(default=0)
+    image = models.ImageField(upload_to='tours/', blank=True, null=True)
+
+    def avg_rating(self):
+        reviews = self.reviews.all()
+        if not reviews.exists():
+            return 0
+        return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+
+    def reviews_count(self):
+        return self.reviews.count()
 
     def save(self, *args, **kwargs):
         if self.date_start and self.date_end:
@@ -88,6 +99,16 @@ class Tour(models.Model):
 
     def __str__(self):
         return self.name
+
+class Review(models.Model):
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.tour.name}'
 
 class Program(models.Model):
     program_id = models.AutoField(primary_key=True)

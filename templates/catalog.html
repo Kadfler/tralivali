@@ -1,35 +1,102 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}Каталог туров{% endblock %}
+{% block title %}Travel Home{% endblock %}
 
 {% block content %}
-<section class="catalog">
-    <div class="container">
-        <h1 class="section-title">Каталог туров</h1>
+<section class="hero-section">
+    <div class="hero-overlay"></div>
 
-        <form method="get" class="filter-form">
-            <input type="text" name="name" placeholder="Название тура" value="{{ name }}">
-            <input type="text" name="country" placeholder="Страна" value="{{ country }}">
-            <input type="number" name="duration" placeholder="Длительность, дней" value="{{ duration }}">
-            <input type="number" name="people" placeholder="Количество человек" value="{{ people }}">
+    <div class="container-fluid px-3 px-lg-5 position-relative hero-content">
+        <div class="row">
+            <div class="col-12 col-xl-9 col-xxl-8">
+                <p class="text-uppercase text-warning fw-semibold mb-2 small">Plan your trip</p>
+                <h1 class="display-4 fw-bold text-white mb-3">Explore your next adventure</h1>
+                <p class="lead text-white-50 mb-4">
+                    Find destinations, check prices, and book the best experience in one place.
+                </p>
 
-            <button type="submit" class="btn btn--primary">Фильтровать</button>
-            <a href="{% url 'catalog' %}" class="btn btn--secondary">Сбросить</a>
-        </form>
+                <form method="get" action="" class="search-panel">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label class="form-label text-white-50 mb-1">Destination</label>
+                            <input type="text" name="destination" class="form-control form-control-lg"
+                                   placeholder="Where to?" value="{{ filters.destination }}">
+                        </div>
 
-        <div class="tour-grid" >
-    {% for tour in tours %}
-    <article class="tour-card">
-        <h3>{{ tour.name }}</h3>
-        <p><strong>Страна:</strong> {{tour.country}}</p>
-        <p><strong>Длительность:</strong> {{tour.duration}} дней</p>
-        <p><strong>Количество людей:</strong> {{tour.persons}}</p>
-        <a href="{% url 'tour_card' tour.pk %}" class="btn btn-primary">Подробнее</a>
-    </article>
-    {% empty %}
-    <p>Туры не найдены.</p>
-    {% endfor %}
-</div>
+                        <div class="col-12 col-md-6 col-xl-2">
+                            <label class="form-label text-white-50 mb-1">Check in</label>
+                            <input type="date" name="check_in" class="form-control form-control-lg"
+                                   value="{{ filters.check_in }}">
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-2">
+                            <label class="form-label text-white-50 mb-1">Check out</label>
+                            <input type="date" name="check_out" class="form-control form-control-lg"
+                                   value="{{ filters.check_out }}">
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label class="form-label text-white-50 mb-1">Price</label>
+                            <div class="price-wrap">
+                                <input type="range" class="form-range" min="0" max="1000" step="10"
+                                       id="priceRange" name="price" value="{{ filters.price }}">
+                                <div class="d-flex justify-content-between text-white-50 small mt-1">
+                                    <span>$0</span>
+                                    <span id="priceValue">${{ filters.price }}</span>
+                                    <span>$1000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-xl-2 d-grid">
+                            <button type="submit" class="btn btn-warning btn-lg fw-semibold search-btn">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 section-dark">
+    <div class="container-fluid px-3 px-lg-5">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="text-white fw-bold mb-1">Popular tours</h2>
+                <p class="text-white-50 mb-0">Tours from your database.</p>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            {% for tour in tours %}
+            <div class="col">
+                <div class="card destination-card h-100 border-0">
+                    {% if tour.image %}
+                        <img src="{{ tour.image.url }}" class="card-img-top" alt="{{ tour.title }}">
+                    {% else %}
+                        <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ tour.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tour.name }}</h5>
+                        <p class="card-text text-muted mb-2">{{ tour.description|truncatechars:90 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">{{ tour.cost_for_one_person }} ₽</span>
+                            <a href="{% url 'tour_detail' tour.pk %}" class="btn btn-sm btn-warning">
+                    Details
+                </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning mb-0">По этому фильтру туров нет.</div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
 {% endblock %}

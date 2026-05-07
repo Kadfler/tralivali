@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="py-5 section-dark">
+    <div class="container-fluid px-3 px-lg-5">
+        <div class="row g-4">
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 overflow-hidden">
+                    {% if tour.image %}
+                        <img src="{{ tour.image.url }}" class="img-fluid" alt="{{ tour.name }}">
+                    {% else %}
+                        <img src="{% static 'img/placeholder.jpg' %}" class="img-fluid" alt="{{ tour.name }}">
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <h1 class="text-white fw-bold">{{ tour.name }}</h1>
+                <p class="text-white-50">{{ tour.description }}</p>
+
+                <div class="d-flex gap-3 align-items-center mb-3">
+                    <span class="badge text-bg-warning fs-6">★ {{ tour.avg_rating }}</span>
+                    <span class="text-white-50">{{ tour.reviews_count }} reviews</span>
+                </div>
+
+                <ul class="list-group mb-4">
+                    <li class="list-group-item"><strong>Country:</strong> {{ tour.country }}</li>
+                    <li class="list-group-item"><strong>Dates:</strong> {{ tour.date_start }} — {{ tour.date_end }}</li>
+                    <li class="list-group-item"><strong>Duration:</strong> {{ tour.duration }}</li>
+                    <li class="list-group-item"><strong>Persons:</strong> {{ tour.persons }}</li>
+                    <li class="list-group-item"><strong>Price:</strong> {{ tour.cost_for_one_person }} ₽</li>
+                </ul>
+
+                <a href="{% url 'catalog' %}" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 col-lg-8">
+                <h3 class="text-white mb-3">Reviews</h3>
+
+                {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ review.user.username }}</strong>
+                            <span>★ {{ review.rating }}</span>
+                        </div>
+                        <p class="mb-0 mt-2">{{ review.text }}</p>
+                        <small class="text-muted">{{ review.created_at }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-light">No reviews yet.</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <h3 class="text-white mb-3">Leave a review</h3>
+
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_review' tour.pk %}" class="card card-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        {{ form.rating }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Review</label>
+                        {{ form.text }}
+                    </div>
+                    <button type="submit" class="btn btn-warning">Submit</button>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    Please log in to leave a review.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
