@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     tour_id = models.ForeignKey('Tour', on_delete=models.CASCADE)
@@ -102,7 +101,7 @@ class Tour(models.Model):
 
 class Review(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField()
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

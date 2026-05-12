@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои заявки{% endblock %}
+
+{% block content %}
+<h2>Мои заявки</h2>
+
+<div class="applications-list">
+    {% for application in applications %}
+        <div class="application-card">
+            <h3>{{ application.course_name }}</h3>
+            <p>Дата начала: {{ application.start_date }}</p>
+            <p>Способ оплаты: {{ application.get_payment_method_display }}</p>
+            <p>Статус: {{ application.get_status_display }}</p>
+        </div>
+    {% empty %}
+        <p>У вас пока нет заявок</p>
+    {% endfor %}
+</div>
+{% endblock %}
