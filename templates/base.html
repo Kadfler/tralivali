@@ -10,11 +10,11 @@
 </head>
 <body>
 
-<header class="catalog-header position-relative d-flex flex-column justify-content-between text-white"
-        style="min-height: 25vh; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+<header class="catalog-header position-relative d-flex flex-column text-white"
+        style="min-height: 50vh; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
                    url('{% if header_settings %}{{ header_settings.background_image.url }}{% else %}/static/img/default-bg.jpg{% endif %}') no-repeat center/cover;">
 
-    <nav class="navbar navbar-expand-lg navbar-dark pt-3">
+    <nav class="navbar navbar-expand-lg section-light ">
         <div class="container">
             <a class="navbar-brand fw-bold fs-3" href="/">
                 <img src="{% static 'img/logo.png' %}" alt="Логотип" height="40"
@@ -43,7 +43,6 @@
             </div>
         </div>
     </nav>
-
 </header>
 
 <!-- Основной контент (например, поиск и каталог) встанет строго ПОД шапкой -->

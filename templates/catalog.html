@@ -4,27 +4,27 @@
 {% block title %}Travel Home{% endblock %}
 
 {% block content %}
-<section class="hero-section py-5 ">
-    <div class="container-fluid px-3 px-lg-5 position-relative hero-content">
+<section class="hero-section py-3" style="background: none !important; margin: 0 !important;">
+    <div class="container-fluid px-3 px-lg-2 position-relative hero-content">
         <div class="row">
             <div class="col-12 col-xl-9 col-xxl-8">
 
-                <form method="get" action="" class="search-panel">
+                <form method="get" action="" class="search-panel" style="margin-bottom: 0 !important;">
                     <div class="row g-3 align-items-end">
                         <div class="col-12 col-md-6 col-xl-3">
-                            <label class="form-label text-white-50 mb-1">Destination</label>
+                            <label class="form-label text-white-50 mb-1">Направление</label>
                             <input type="text" name="destination" class="form-control form-control-lg"
                                    placeholder="Куда едем?" value="{{ filters.destination }}">
                         </div>
 
                         <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-white-50 mb-1">Check in</label>
+                            <label class="form-label text-white-50 mb-1">Начало</label>
                             <input type="date" name="check_in" class="form-control form-control-lg"
                                    value="{{ filters.check_in }}">
                         </div>
 
                         <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-white-50 mb-1">Check out</label>
+                            <label class="form-label text-white-50 mb-1">Конец</label>
                             <input type="date" name="check_out" class="form-control form-control-lg"
                                    value="{{ filters.check_out }}">
                         </div>
@@ -36,6 +36,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
@@ -46,8 +47,7 @@
     <div class="container-fluid px-3 px-lg-5">
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div>
-                <h2 class="text-white fw-bold mb-1">Popular tours</h2>
-                <p class="text-white-50 mb-0">Tours from your database.</p>
+                <h2 class="text-white fw-bold mb-1">Популярные туры</h2>
             </div>
         </div>
 

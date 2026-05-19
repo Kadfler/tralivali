@@ -62,40 +62,43 @@
                 {% endfor %}
             </div>
 
-            <div class="col-12 col-lg-4">
-                <h3 class="text-white mb-3">Leave a review</h3>
+            <form method="post" action="{% url 'add_review' tour.pk %}"
+                  class="card card-body bg-dark border-secondary text-white">
+                {% csrf_token %}
 
-                {% if user.is_authenticated %}
-                <form method="post" action="{% url 'add_review' tour.pk %}" class="card card-body">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label text-white fw-semibold">Rating</label>
+                <div class="mb-3">
+                    <label class="form-label text-white-50 small mb-1">Ваша оценка:</label>
 
-                        <input type="hidden" name="rating" id="id_rating" value="5">
+                    <div class="star-rating d-flex flex-row-reverse justify-content-end gap-1 fs-3">
 
-                        <div class="mb-3">
+                        <input type="radio" id="star5" name="rating" value="5" class="d-none" checked>
+                        <label for="star5" class="star-item" title="Отлично">★</label>
 
-                            <div class="star-rating fs-3">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                        </div>
+                        <input type="radio" id="star4" name="rating" value="4" class="d-none">
+                        <label for="star4" class="star-item" title="Хорошо">★</label>
+
+                        <input type="radio" id="star3" name="rating" value="3" class="d-none">
+                        <label for="star3" class="star-item" title="Нормально">★</label>
+
+                        <input type="radio" id="star2" name="rating" value="2" class="d-none">
+                        <label for="star2" class="star-item" title="Плохо">★</label>
+
+                        <input type="radio" id="star1" name="rating" value="1" class="d-none">
+                        <label for="star1" class="star-item" title="Ужасно">★</label>
+
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Review</label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white-50 small mb-1">Ваш отзыв:</label>
+                    <div class="dark-textarea">
                         {{ form.text }}
                     </div>
-                    <button type="submit" class="btn btn-warning">Submit</button>
-                </form>
-                {% else %}
-                <div class="alert alert-warning">
-                    Please log in to leave a review.
                 </div>
-                {% endif %}
-            </div>
+
+                <button type="submit" class="btn btn-warning fw-semibold text-dark w-100">Отправить</button>
+            </form>
+
         </div>
     </div>
 </section>

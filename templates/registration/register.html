@@ -1,27 +1,52 @@
 {% extends 'base.html' %}
 
-{% block title %}Регистрация{% endblock %}
+{% block title %}Авторизация{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<style>
+    .dark-form input, .dark-form select, .dark-form textarea {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--bs-border-color-translucent) !important;
+        color: #fff !important;
+    }
+
+    /* ВОТ ЭТОТ КУСОК ДЕЛАЕТ ПЛЕЙСХОЛДЕРЫ ЧИТАЕМЫМИ (белый цвет с 60% видимости) */
+    .dark-form input::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+        opacity: 1 !important; /* Чтобы Firefox не приглушал цвет */
+    }
+
+    .dark-form input:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
+        border-color: #ffc107 !important;
+    }
+    .dark-form .form-text {
+        color: rgba(255, 255, 255, 0.4) !important;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="container py-5 text-white">
     <div class="row justify-content-center">
         <div class="col-12 col-md-7 col-lg-5">
-            <div class="card shadow-sm">
+            <div class="card bg-dark border-secondary shadow dark-form">
                 <div class="card-body p-4">
-                    <h1 class="h4 text-center mb-4">Регистрация</h1>
+                    <h1 class="h4 text-center mb-4 text-white fw-bold">Регистрация</h1>
 
                     <form method="post" novalidate>
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger py-2 small">
                                 {{ form.non_field_errors }}
                             </div>
                         {% endif %}
 
                         {% for field in form %}
                             <div class="mb-3">
-                                <label class="form-label" for="{{ field.id_for_label }}">
+                                <label class="form-label text-white-50 small mb-1" for="{{ field.id_for_label }}">
                                     {{ field.label }}
                                 </label>
 
@@ -35,14 +60,14 @@
                             </div>
                         {% endfor %}
 
-                        <button type="submit" class="btn btn-primary w-100">
-                            Создать пользователя
+                        <button type="submit" class="btn btn-warning w-100 fw-semibold text-dark mt-2">
+                            Войти
                         </button>
                     </form>
 
-                    <div class="text-center mt-3">
-                        Уже зарегистрированы?
-                        <a href="{% url 'login' %}">Войти</a>
+                    <div class="text-center mt-4">
+                        <span class="text-white-50">Есть аккаунт?</span>
+                        <a href="{% url 'login' %}" class="text-warning text-decoration-none">Войти</a>
                     </div>
                 </div>
             </div>
