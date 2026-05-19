@@ -80,7 +80,7 @@ class Tour(models.Model):
     cost_for_one_person = models.IntegerField(default=0)
     duration = models.PositiveIntegerField(default=0)
     persons = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to='tours/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, verbose_name="Ссылка на фото товара", default="")
 
     def avg_rating(self):
         reviews = self.reviews.all()
@@ -122,3 +122,28 @@ class Program(models.Model):
     def __str__(self):
         return self.name
 
+class HeaderSettings(models.Model):
+    title = models.CharField(max_length=100, default="Настройки шапки", editable=False)
+    background_image = models.ImageField(upload_to='headers/', verbose_name="Фоновое изображение шапки")
+
+    class Meta:
+        verbose_name = "Настройки шапки"
+        verbose_name_plural = "Настройки шапки"
+
+    def __str__(self):
+        return self.title
+
+class Booking(models.Model):
+    # 2. Меняем 'User' на settings.AUTH_USER_MODEL
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, verbose_name="Тур")
+    people_count = models.IntegerField(default=1, verbose_name="Количество человек")
+    user_comment = models.TextField(blank=True, null=True, verbose_name="Комментарий")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата бронирования")
+
+    def __str__(self):
+        return f"{self.user} - {self.tour.name}"

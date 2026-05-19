@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Бронирование {{ tour.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 600px;">
+    <div class="card shadow-sm p-4">
+        <h2 class="fw-bold mb-3">Бронирование тура</h2>
+        <h4 class="text-primary mb-4">{{ tour.name }}</h4>
+        <p class="text-muted">Стоимость: <strong>{{ tour.cost_for_one_person }} ₽</strong></p>
+
+        <hr>
+
+        <!-- Форма бронирования -->
+        <form method="post" action="{% url 'book_tour' tour.pk %}">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Количество человек</label>
+                <input type="number" name="people_count" class="form-control" min="1" value="1" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Комментарий к бронированию</label>
+                <textarea name="user_comment" class="form-control" rows="3" placeholder="Например, нужны раздельные кровати..."></textarea>
+            </div>
+
+            <div class="p-3 bg-light rounded mb-4">
+                <h5 class="fw-bold mb-3">💳 Псевдо-оплата</h5>
+                <div class="mb-3">
+                    <label class="form-label">Номер карты (имитация)</label>
+                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" required>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <input type="text" class="form-control" placeholder="ММ/ГГ" required>
+                    </div>
+                    <div class="col-6">
+                        <input type="password" class="form-control" placeholder="CVC" maxlength="3" required>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">Деньги списаны не будут. Это демонстрационный режим.</small>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-lg fw-semibold">
+                Оплатить и подтвердить
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

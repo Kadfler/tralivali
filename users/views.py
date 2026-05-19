@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegisterForm, LoginForm
+from django.contrib.auth.decorators import login_required
 
 
 def register_view(request):
@@ -10,7 +11,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('applications')
+            return redirect('catalog')
 
     else:
         form = RegisterForm()
@@ -35,3 +36,4 @@ def login_view(request):
     return render(request, 'registration/login.html', {
         'form': form
     })
+

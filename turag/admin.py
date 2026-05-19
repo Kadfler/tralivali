@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Tour, Program, Hotel, Transport, AddService, TourOperator
+from .models import Tour, Program, Hotel, Transport, AddService, TourOperator, HeaderSettings
+
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
@@ -35,3 +36,8 @@ class TourOperatorAdmin(admin.ModelAdmin):
     list_display = ('name', 'country')
     search_fields = ('name', 'country')
     list_filter = ('country',)
+
+@admin.register(HeaderSettings)
+class HeaderSettingsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'background_image')
+    search_fields = ('title', 'background_image')

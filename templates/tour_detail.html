@@ -7,10 +7,10 @@
         <div class="row g-4">
             <div class="col-12 col-lg-6">
                 <div class="card border-0 overflow-hidden">
-                    {% if tour.image %}
-                        <img src="{{ tour.image.url }}" class="img-fluid" alt="{{ tour.name }}">
+                    {% if tour.image_url %}
+                    <img src="{{ tour.image_url }}" class="img-fluid" alt="{{ tour.name }}">
                     {% else %}
-                        <img src="{% static 'img/placeholder.jpg' %}" class="img-fluid" alt="{{ tour.name }}">
+                    <img src="{% static 'img/placeholder.jpg' %}" class="img-fluid" alt="{{ tour.name }}">
                     {% endif %}
                 </div>
             </div>
@@ -29,8 +29,14 @@
                     <li class="list-group-item"><strong>Dates:</strong> {{ tour.date_start }} — {{ tour.date_end }}</li>
                     <li class="list-group-item"><strong>Duration:</strong> {{ tour.duration }}</li>
                     <li class="list-group-item"><strong>Persons:</strong> {{ tour.persons }}</li>
-                    <li class="list-group-item"><strong>Price:</strong> {{ tour.cost_for_one_person }} ₽</li>
                 </ul>
+
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-dark">{{ tour.cost_for_one_person }} ₽</span>
+                    <a href="{% url 'book_tour' tour.pk %}" class="btn btn-primary btn-sm rounded-pill px-3">
+                        Забронировать
+                    </a>
+                </div>
 
                 <a href="{% url 'catalog' %}" class="btn btn-secondary">Back</a>
             </div>
@@ -63,8 +69,20 @@
                 <form method="post" action="{% url 'add_review' tour.pk %}" class="card card-body">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">Rating</label>
-                        {{ form.rating }}
+                        <label class="form-label text-white fw-semibold">Rating</label>
+
+                        <input type="hidden" name="rating" id="id_rating" value="5">
+
+                        <div class="mb-3">
+
+                            <div class="star-rating fs-3">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Review</label>
@@ -82,3 +100,4 @@
     </div>
 </section>
 {% endblock %}
+<script src="{% static 'js/stars.js' %}"></script>

@@ -17,22 +17,20 @@ body {
 .site-navbar {
     background: rgba(10, 12, 15, 0.88);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     z-index: 1030;
 }
 
 .hero-section {
     position: relative;
-    min-height: calc(100vh - 72px);
     display: flex;
     align-items: center;
-    background: url("../img/hero.jpg") center/cover no-repeat;
 }
 
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.72));
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.72));
 }
 
 .hero-content {
@@ -53,7 +51,7 @@ body {
 
 .search-panel .form-control,
 .search-panel .form-select {
-    background-color: rgba(255,255,255,0.96);
+    background-color: rgba(255, 255, 255, 0.96);
     border: 0;
 }
 
@@ -79,7 +77,7 @@ body {
 
 .destination-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
 }
 
 .destination-card img {
@@ -89,7 +87,7 @@ body {
 
 .site-footer {
     background: #0c0f13;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .form-range::-webkit-slider-thumb {
@@ -114,4 +112,32 @@ body {
     .destination-card img {
         height: 180px;
     }
+}
+
+
+.star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    cursor: pointer;
+    user-select: none;
+}
+
+
+.star-rating .star {
+    font-size: 32px;
+    color: #e4e4e4;
+    transition: color 0.15s ease;
+    padding: 0 4px;
+    display: inline-block;
+}
+
+.star-rating .star.active,
+.star-rating .star.active ~ .star {
+    color: #ffc107;
+}
+
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star {
+    color: #ffca28;
 }
