@@ -1,111 +1,134 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}Турагентство TravelWay{% endblock %}
+{% block title %}Главная | Tralley-Valley{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="container hero__inner">
-        <div class="hero__content">
-            <span class="hero__badge">Турагентство мечты</span>
-            <h1>Путешествия, которые запомнятся надолго</h1>
-            <p>
-                Подберём туры по России и миру, найдём лучшие отели, авиабилеты и готовые пакеты
-                под ваш бюджет и даты.
-            </p>
-            <div class="hero__actions">
-                <a href="#booking" class="btn btn--primary">Подобрать тур</a>
-                <a href="#tours" class="btn btn--secondary">Смотреть направления</a>
-            </div>
-        </div>
+<style>
+    /* Стили для сочной, яркой жёлтой кнопки "Найти" */
+    .btn-bright-yellow {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-bright-yellow:hover {
+        background-color: #ffca28 !important;
+        border-color: #ffca28 !important;
+        transform: translateY(-1px);
+    }
+</style>
 
-        <div class="hero__card">
-            <h3>Быстрый подбор</h3>
-            <form class="search-form">
-                <input type="text" placeholder="Куда хотите поехать?">
-                <input type="date">
-                <select>
-                    <option>1 турист</option>
-                    <option>2 туриста</option>
-                    <option>3 туриста</option>
-                    <option>4+ туристов</option>
-                </select>
-                <button type="submit">Найти тур</button>
+<div class="w-100 position-relative" style="margin-top: -90px; z-index: 10;">
+    <div class="container p-0">
+        <div class="bg-white rounded-4 p-4 p-md-5 mx-2" style="box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.05);">
+            <h3 class="text-dark fw-bold mb-4 fs-3">Найдите тур своей мечты в Tralley-Valley</h3>
+
+            <form method="get" action="">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label class="form-label text-secondary small fw-semibold mb-2">Направление (Страна)</label>
+                        <input type="text" name="destination" class="form-control form-control-lg border-0 bg-light text-dark py-3"
+                               style="border-radius: 10px;" placeholder="В какую страну едем?" value="{{ filters.destination }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label class="form-label text-secondary small fw-semibold mb-2">Начало</label>
+                        <input type="date" name="check_in" class="form-control form-control-lg border-0 bg-light text-dark py-3"
+                               style="border-radius: 10px;" value="{{ filters.check_in }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label class="form-label text-secondary small fw-semibold mb-2">Конец</label>
+                        <input type="date" name="check_out" class="form-control form-control-lg border-0 bg-light text-dark py-3"
+                               style="border-radius: 10px;" value="{{ filters.check_out }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3 d-grid">
+                        <button type="submit" class="btn btn-lg btn-bright-yellow fw-bold text-dark py-3"
+                                style="border-radius: 10px;">
+                            Найти
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
-</section>
+</div>
 
-<section class="stats">
-    <div class="container stats__grid">
-        <div class="stat">
-            <strong>1200+</strong>
-            <span>довольных клиентов</span>
-        </div>
-        <div class="stat">
-            <strong>50+</strong>
-            <span>направлений</span>
-        </div>
-        <div class="stat">
-            <strong>24/7</strong>
-            <span>поддержка клиентов</span>
-        </div>
-    </div>
-</section>
-
-<section class="features" id="about">
-    <div class="container">
-        <h2 class="section-title">Почему выбирают нас</h2>
-
-        <div class="cards">
-            <div class="card">
-                <h3>Лучшие предложения</h3>
-                <p>Подбираем выгодные туры, горящие предложения и проверенные отели.</p>
-            </div>
-
-            <div class="card">
-                <h3>Персональный подход</h3>
-                <p>Учитываем бюджет, даты, состав группы и ваши пожелания к отдыху.</p>
-            </div>
-
-            <div class="card">
-                <h3>Полное сопровождение</h3>
-                <p>Помогаем от заявки до возвращения: документы, бронирование, консультации.</p>
+<section class="py-5 bg-light" style="padding-top: 80px !important;">
+    <div class="container-fluid px-3 px-lg-5">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div class="w-100 text-center mb-4">
+                <h2 class="text-dark fw-bold mb-2 fs-2">
+                    {% if is_searched %} Результаты поиска {% else %} Популярные туры {% endif %}
+                </h2>
+                <p class="text-muted mb-0">Лучшие предложения для вас</p>
             </div>
         </div>
-    </div>
-</section>
 
-<section class="tours" id="tours">
-    <div class="container">
-        <h2 class="section-title">Популярные направления</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 justify-content-center">
+            {% for tour in tours %}
+            <div class="col" style="max-width: 420px;">
+                <div class="card h-100 border-0 shadow-sm position-relative destination-card bg-white" style="border-radius: 16px; overflow: hidden;">
 
-        <div class="tour-grid">
-            <article class="tour-card">
-                <h3>Турция</h3>
-                <p>Море, all inclusive, семейный отдых.</p>
-                <span>от 85 000 ₽</span>
-            </article>
+                    {% if tour.is_expired %}
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-secondary fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
+                        ⏳ Завершен
+                    </span>
+                    {% elif tour.slots_left <= 0 %}
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-danger fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
+                        🛑 Мест нет
+                    </span>
+                    {% endif %}
 
-            <article class="tour-card">
-                <h3>ОАЭ</h3>
-                <p>Пляжи, шопинг, современный комфорт.</p>
-                <span>от 120 000 ₽</span>
-            </article>
+                    {% if tour.image_url %}
+                        <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}" style="height: 240px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ tour.name }}" style="height: 240px; object-fit: cover;">
+                    {% endif %}
 
-            <article class="tour-card">
-                <h3>Таиланд</h3>
-                <p>Экзотика, экскурсии и тёплое море.</p>
-                <span>от 110 000 ₽</span>
-            </article>
+                    <div class="card-body d-flex flex-column bg-white text-dark p-4">
+                        <h5 class="card-title mb-1">
+                            <a href="{% url 'tour_detail' tour.pk %}" class="stretched-link text-decoration-none text-dark fw-bold fs-5">
+                                {{ tour.name }}
+                            </a>
+                        </h5>
+
+                        <div class="text-warning-emphasis fw-bold small mb-2 d-flex align-items-center" style="position: relative; z-index: 5;">
+                            <span class="me-1">📍</span> Направление: {{ tour.country }}
+                        </div>
+
+                        <p class="card-text text-muted mb-4 small">{{ tour.description|truncatechars:90 }}</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark fs-4">
+                                {% if tour.is_expired %}
+                                    <span class="text-secondary fs-5">Тур завершен</span>
+                                {% elif tour.slots_left <= 0 %}
+                                    <span class="text-danger fs-5">Мест нет</span>
+                                {% else %}
+                                    {{ tour.cost_for_one_person }} ₽
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="alert alert-warning mb-0 d-inline-block px-5 rounded-pill">По вашему запросу ничего не найдено.</div>
+            </div>
+            {% endfor %}
         </div>
-    </div>
-</section>
 
-<section class="booking" id="booking">
-    <div class="container booking__box">
-        <h2>Нужен тур под ваши даты?</h2>
-        <p>Оставьте заявку, и мы подберём лучший вариант за короткое время.</p>
-        <a href="#contacts" class="btn btn--primary">Связаться с нами</a>
+        {% if has_more %}
+        <div class="text-center mt-5">
+            <a href="{% url 'catalog' %}?destination={{ filters.destination }}&check_in={{ filters.check_in }}&check_out={{ filters.check_out }}"
+               class="btn btn-outline-dark btn-lg rounded-pill px-5 fw-semibold" style="border-width: 2px;">
+                Показать ещё предложенные варианты ➔
+            </a>
+        </div>
+        {% endif %}
+
     </div>
 </section>
 {% endblock %}

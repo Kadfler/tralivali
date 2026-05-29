@@ -1,36 +1,51 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Travel Home{% endblock %}
+{% block title %}Каталог туров | Tralley-Valley{% endblock %}
+
+{% block header_banner %}
+    <div class="bg-body-secondary w-100 border-bottom">
+        {% block navigation %}
+            {{ block.super }}
+        {% endblock navigation %}
+    </div>
+{% endblock header_banner %}
+
+{% block nav_theme_classes %}navbar-light text-dark{% endblock %}
+{% block nav_brand_class %}text-dark{% endblock %}
+{% block nav_btn_class %}btn-outline-dark{% endblock %}
+{% block nav_btn_catalog_class %}btn-outline-dark{% endblock %}
+{% block nav_btn_profile_class %}btn-outline-dark{% endblock %}
+
 
 {% block content %}
-<section class="hero-section py-3" style="background: none !important; margin: 0 !important;">
-    <div class="container-fluid px-3 px-lg-2 position-relative hero-content">
+<div class="bg-light w-100 py-3">
+    <div class="container-fluid px-3 px-lg-5 position-relative hero-content">
         <div class="row">
             <div class="col-12 col-xl-9 col-xxl-8">
 
-                <form method="get" action="" class="search-panel" style="margin-bottom: 0 !important;">
+                <form method="get" action="" class="search-panel border-light-subtle bg-white shadow-sm">
                     <div class="row g-3 align-items-end">
                         <div class="col-12 col-md-6 col-xl-3">
-                            <label class="form-label text-white-50 mb-1">Направление</label>
-                            <input type="text" name="destination" class="form-control form-control-lg"
+                            <label class="form-label text-dark mb-1">Направление</label>
+                            <input type="text" name="destination" class="form-control form-control-lg bg-light text-dark"
                                    placeholder="Куда едем?" value="{{ filters.destination }}">
                         </div>
 
                         <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-white-50 mb-1">Начало</label>
-                            <input type="date" name="check_in" class="form-control form-control-lg"
+                            <label class="form-label text-dark mb-1">Начало</label>
+                            <input type="date" name="check_in" class="form-control form-control-lg bg-light text-dark"
                                    value="{{ filters.check_in }}">
                         </div>
 
                         <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-white-50 mb-1">Конец</label>
-                            <input type="date" name="check_out" class="form-control form-control-lg"
+                            <label class="form-label text-dark mb-1">Конец</label>
+                            <input type="date" name="check_out" class="form-control form-control-lg bg-light text-dark"
                                    value="{{ filters.check_out }}">
                         </div>
 
                         <div class="col-12 col-xl-2 d-grid">
-                            <button type="submit" class="btn btn-warning btn-lg fw-semibold search-btn">
+                            <button type="submit" class="btn btn-warning btn-lg fw-semibold search-btn text-dark">
                                 Найти
                             </button>
                         </div>
@@ -40,43 +55,92 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Секция с турами -->
-<section class="py-5 section-dark">
+<section class="py-5 bg-light">
     <div class="container-fluid px-3 px-lg-5">
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div>
-                <h2 class="text-white fw-bold mb-1">Популярные туры</h2>
+                <h2 class="text-dark fw-bold mb-1">Доступные предложения</h2>
+                <p class="text-muted mb-0">Найдите идеальный вариант для вашего отдыха</p>
             </div>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div class="row g-4">
             {% for tour in tours %}
-            <div class="col">
-                <div class="card h-100 border-0 position-relative destination-card">
-                    {% if tour.image_url %}
-                    <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}">
-                    {% else %}
-                    <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ tour.name }}">
-                    {% endif %}
+            <div class="col-12">
+                <div class="card h-100 border-light-subtle shadow-sm bg-white overflow-hidden text-dark">
+                    <div class="row g-0">
 
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">
-                            <a href="{% url 'tour_detail' tour.pk %}" class="stretched-link text-decoration-none text-dark">
-                                {{ tour.name }}
-                            </a>
-                        </h5>
-                        <p class="card-text text-muted mb-4">{{ tour.description|truncatechars:90 }}</p>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark">{{ tour.cost_for_one_person }} ₽</span>
+                        <div class="col-md-4 col-xl-3 position-relative overflow-hidden" style="min-height: 220px;">
+
+                            {% if tour.slots_left <= 0 %}
+                            <span class="position-absolute top-0 start-0 m-3 badge bg-danger fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
+                                🛑 Билетов нет
+                            </span>
+                            {% endif %}
+
+                            {% if tour.image_url %}
+                                <img src="{{ tour.image_url }}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ tour.name }}">
+                            {% else %}
+                                <img src="{% static 'img/placeholder.jpg' %}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ tour.name }}">
+                            {% endif %}
                         </div>
+
+                        <div class="col-md-5 col-xl-6 p-4 d-flex flex-column justify-content-between border-end-md border-light-subtle">
+                            <div>
+                                <h4 class="fw-bold mb-2">
+                                    <a href="{% url 'tour_detail' tour.pk %}" class="text-decoration-none text-dark hover-warning">
+                                        {{ tour.name }}
+                                    </a>
+                                </h4>
+
+                                <p class="text-muted mb-4 fs-6">{{ tour.description|truncatechars:250 }}</p>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-4 text-secondary small">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">📅</span>
+                                    <span>
+                                        {% if tour.date_start and tour.date_end %}
+                                            {{ tour.date_start|date:"d.m" }} — {{ tour.date_end|date:"d.m.Y" }}
+                                        {% else %}
+                                            Даты уточняются
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">⏱️</span>
+                                    <span>Длительность: 8 дней / 7 ночей</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">👤</span>
+                                    <span>Цена за 1 человека</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-xl-3 p-4 bg-body-tertiary d-flex flex-column justify-content-center align-items-center align-items-md-end justify-content-md-between text-center text-md-end" style="min-width: 200px;">
+                            <div class="mb-3 mb-md-0">
+                                <span class="d-block text-muted small mb-1">Итоговая стоимость</span>
+                                <h3 class="fw-extrabold text-dark mb-0 fs-2">{{ tour.cost_for_one_person }} ₽</h3>
+                            </div>
+
+                            <div class="w-100">
+                                <a href="{% url 'tour_detail' tour.pk %}" class="btn {% if tour.slots_left <= 0 %}btn-outline-secondary{% else %}btn-warning{% endif %} w-100 fw-semibold text-dark rounded-pill py-2">
+                                    {% if tour.slots_left <= 0 %}Мест нет{% else %}Дополнительно ➔{% endif %}
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="col-12">
-                <div class="alert alert-warning mb-0">По этому фильтру туров нет.</div>
+                <div class="alert alert-warning mb-0 text-center py-4">
+                    По выбранным фильтрам ничего не найдено. Попробуйте изменить параметры поиска!
+                </div>
             </div>
             {% endfor %}
         </div>

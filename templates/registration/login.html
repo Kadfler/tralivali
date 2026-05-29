@@ -1,63 +1,91 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Авторизация{% endblock %}
+{% block title %}Авторизация | Tralley-Valley{% endblock %}
+
+{% block header_banner %}
+    <div class="position-absolute w-100" style="z-index: 10;">
+        {% block navigation %}
+            {{ block.super }}
+        {% endblock navigation %}
+    </div>
+{% endblock header_banner %}
+
+{% block nav_theme_classes %}navbar-dark text-white{% endblock %}
+{% block nav_brand_class %}text-white{% endblock %}
+{% block nav_btn_class %}btn-outline-light{% endblock %}
+{% block nav_btn_catalog_class %}btn-outline-light{% endblock %}
+{% block nav_btn_profile_class %}btn-outline-light{% endblock %}
 
 {% block content %}
 <style>
-    .dark-form input, .dark-form select, .dark-form textarea {
-        background-color: rgba(255, 255, 255, 0.08) !important;
-        border-color: var(--bs-border-color-translucent) !important;
-        color: #fff !important;
+    .light-form input, .light-form select, .light-form textarea {
+        background-color: #fff !important;
+        border: 1px solid rgba(0, 0, 0, 0.2) !important;
+        color: #212529 !important;
+        border-radius: 10px;
     }
-    .dark-form input:focus {
-        background-color: rgba(255, 255, 255, 0.15) !important;
-        color: #fff !important;
+    .light-form input:focus {
+        background-color: #fff !important;
+        color: #212529 !important;
         box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
         border-color: #ffc107 !important;
     }
+    /* Эффект плавного изменения цвета при наведении на кнопку */
+    .btn-bright-yellow {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-bright-yellow:hover {
+        background-color: #ffca28 !important;
+        border-color: #ffca28 !important;
+        transform: translateY(-1px);
+    }
 </style>
 
-<div class="container py-5 text-white">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-7 col-lg-5">
-            <div class="card bg-dark border-secondary shadow dark-form">
-                <div class="card-body p-4">
-                    <h1 class="h4 text-center mb-4 text-white fw-bold">Авторизация</h1>
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5"
+     style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+            url('{% if header_settings and header_settings.background_image %}{{ header_settings.background_image.url }}{% else %}/static/img/default-bg.jpg{% endif %}') no-repeat center center/cover; background-attachment: fixed;">
 
-                    <form method="post" novalidate>
-                        {% csrf_token %}
+    <div class="container my-5" style="max-width: 500px; position: relative; z-index: 2;">
+        <div class="card bg-white border-0 shadow-lg p-4 rounded-4 light-form">
+            <div class="card-body">
+                <h1 class="h3 text-center mb-4 text-dark fw-bold">Авторизация</h1>
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger py-2 small">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
 
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label class="form-label text-white-50 small mb-1" for="{{ field.id_for_label }}">
-                                    {{ field.label }}
-                                </label>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
 
-                                {{ field }}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-semibold mb-1" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
 
-                                {% for error in field.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
+                            {{ field }}
 
-                        <button type="submit" class="btn btn-warning w-100 fw-semibold text-dark mt-2">
-                            Войти
-                        </button>
-                    </form>
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
 
-                    <div class="text-center mt-4">
-                        <span class="text-white-50">Нет аккаунта?</span>
-                        <a href="{% url 'register' %}" class="text-warning text-decoration-none">Зарегистрироваться</a>
-                    </div>
+                    <button type="submit" class="btn btn-bright-yellow w-100 fw-bold text-dark rounded-pill py-3 mt-3 shadow-sm">
+                        Войти
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Нет аккаунта?</span>
+                    <a href="{% url 'register' %}" class="text-warning-emphasis small fw-bold text-decoration-none ms-1">Зарегистрироваться</a>
                 </div>
             </div>
         </div>

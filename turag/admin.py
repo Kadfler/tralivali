@@ -4,10 +4,27 @@ from .models import Tour, Program, Hotel, Transport, AddService, TourOperator, H
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country', 'duration', 'persons', 'cost_for_one_person')
+    # В таблице списков (отображаются свойства и поля)
+    list_display = ('name', 'country', 'duration', 'cost_for_one_person')
     search_fields = ('name', 'country')
-    list_filter = ('country', 'duration', 'persons')
-    exclude = ('comments',)
+    list_filter = ('country',)
+
+    # Полный список ВСЕХ полей, которые теперь появятся при создании и редактировании тура
+    fields = (
+        'name',
+        'country',
+        'description',
+        'hotel_id',
+        'transport_id',
+        'program_id',
+        'tour_operator_id',
+        'date_start',
+        'date_end',
+        'cost_for_one_person',
+        'persons',
+        'image_url',
+        'total_slots',
+    )
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):

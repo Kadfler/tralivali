@@ -1,50 +1,106 @@
 {% extends "base.html" %}
-{% block title %}Бронирование {{ tour.name }}{% endblock %}
+{% load static %}
+
+{% block title %}Бронирование {{ tour.name }} | Tralley-Valley{% endblock %}
+
+{% block header_banner %}
+    <div class="position-absolute w-100" style="z-index: 10;">
+        {% block navigation %}
+            {{ block.super }}
+        {% endblock navigation %}
+    </div>
+{% endblock header_banner %}
+
+{% block nav_theme_classes %}navbar-dark text-white{% endblock %}
+{% block nav_brand_class %}text-white{% endblock %}
+{% block nav_btn_class %}btn-outline-light{% endblock %}
+{% block nav_btn_catalog_class %}btn-outline-light{% endblock %}
+{% block nav_btn_profile_class %}btn-outline-light{% endblock %}
+
 
 {% block content %}
-<div class="container my-5" style="max-width: 600px;">
-    <div class="card shadow-sm p-4">
-        <h2 class="fw-bold mb-3">Бронирование тура</h2>
-        <h4 class="text-primary mb-4">{{ tour.name }}</h4>
-        <p class="text-muted">Стоимость: <strong>{{ tour.cost_for_one_person }} ₽</strong></p>
+<div class="d-flex align-items-center justify-content-center min-vh-100 py-5"
+     style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+            url('{% if header_settings and header_settings.background_image %}{{ header_settings.background_image.url }}{% else %}/static/img/default-bg.jpg{% endif %}') no-repeat center center/cover; background-attachment: fixed;">
 
-        <hr>
+    <div class="container my-5 mt-5" style="max-width: 600px; position: relative; z-index: 2;">
+        <div class="card shadow-lg p-4 bg-white border-0 rounded-4">
+            <h2 class="fw-bold mb-2 text-dark text-center">Бронирование тура</h2>
+            <h4 class="text-warning-emphasis fw-bold text-center mb-4">{{ tour.name }}</h4>
 
-        <!-- Форма бронирования -->
-        <form method="post" action="{% url 'book_tour' tour.pk %}">
-            {% csrf_token %}
-
-            <div class="mb-3">
-                <label class="form-label">Количество человек</label>
-                <input type="number" name="people_count" class="form-control" min="1" value="1" required>
+            <div class="p-3 bg-light rounded-3 mb-4 text-center border border-light-subtle">
+                <span class="text-muted d-block small">Стоимость за одного человека</span>
+                <strong class="text-dark fs-3">{{ tour.cost_for_one_person }} ₽</strong>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label">Комментарий к бронированию</label>
-                <textarea name="user_comment" class="form-control" rows="3" placeholder="Например, нужны раздельные кровати..."></textarea>
-            </div>
+            <form method="post" action="{% url 'book_tour' tour.pk %}">
+                {% csrf_token %}
 
-            <div class="p-3 bg-light rounded mb-4">
-                <h5 class="fw-bold mb-3">💳 Псевдо-оплата</h5>
                 <div class="mb-3">
-                    <label class="form-label">Номер карты (имитация)</label>
-                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" required>
+                    <label class="form-label text-dark fw-semibold small">{{ form.people_count.label }}</label>
+                    {{ form.people_count }}
+                    {% if form.people_count.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.people_count.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-                <div class="row">
-                    <div class="col-6">
-                        <input type="text" class="form-control" placeholder="ММ/ГГ" required>
-                    </div>
-                    <div class="col-6">
-                        <input type="password" class="form-control" placeholder="CVC" maxlength="3" required>
-                    </div>
-                </div>
-                <small class="text-muted d-block mt-2">Деньги списаны не будут. Это демонстрационный режим.</small>
-            </div>
 
-            <button type="submit" class="btn btn-success w-100 btn-lg fw-semibold">
-                Оплатить и подтвердить
-            </button>
-        </form>
+                <div class="mb-4">
+                    <label class="form-label text-dark fw-semibold small">{{ form.user_comment.label }}</label>
+                    {{ form.user_comment }}
+                    {% if form.user_comment.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.user_comment.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-4 bg-body-tertiary rounded-3 mb-4 border border-light-subtle shadow-sm">
+                    <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
+                        <span class="me-2">💳</span> Псевдо-оплата
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small mb-1">Номер карты</label>
+                        {{ form.card_number }}
+                        {% if form.card_number.errors %}
+                            <div class="text-danger small mt-1">Поле обязательно для заполнения</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label text-muted small mb-1">Срок действия</label>
+                            {{ form.card_expiry }}
+                            {% if form.card_expiry.errors %}
+                                <div class="text-danger small mt-1">Заполните срок</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small mb-1">CVC / CVV</label>
+                            {{ form.card_cvc }}
+                            {% if form.card_cvc.errors %}
+                                <div class="text-danger small mt-1">Заполните код</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-text text-muted mt-3 lh-sm" style="font-size: 0.8rem;">
+                        🔒 Это безопасная демо-панель. Настоящие деньги списаны не будут.
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark rounded-pill py-3 shadow-sm">
+                        Оплатить и подтвердить
+                    </button>
+                    <a href="{% url 'tour_detail' tour.pk %}" class="btn btn-link text-muted btn-sm mt-2 text-decoration-none text-center">
+                        ← Вернуться к описанию тура
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
