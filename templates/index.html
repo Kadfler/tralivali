@@ -16,6 +16,20 @@
         border-color: #ffca28 !important;
         transform: translateY(-1px);
     }
+
+    /* Дополнительный стиль для иконок преимуществ */
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        font-size: 1.5rem;
+    }
 </style>
 
 <div class="w-100 position-relative" style="margin-top: -90px; z-index: 10;">
@@ -60,7 +74,7 @@
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div class="w-100 text-center mb-4">
                 <h2 class="text-dark fw-bold mb-2 fs-2">
-                    {% if is_searched %} Результаты поиска {% else %} Популярные туры {% endif %}
+                    {% if is_searched and tours %} Результаты поиска {% else %} Популярные туры {% endif %}
                 </h2>
                 <p class="text-muted mb-0">Лучшие предложения для вас</p>
             </div>
@@ -69,7 +83,7 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 justify-content-center">
             {% for tour in tours %}
             <div class="col" style="max-width: 420px;">
-                <div class="card h-100 border-0 shadow-sm position-relative destination-card bg-white" style="border-radius: 16px; overflow: hidden;">
+                <div class="card h-100 border-0 shadow-sm position-relative destination-card bg-white" style="border-radius: 16px; overflow: hidden; min-height: 440px;">
 
                     {% if tour.is_expired %}
                     <span class="position-absolute top-0 start-0 m-3 badge bg-secondary fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
@@ -81,8 +95,8 @@
                     </span>
                     {% endif %}
 
-                    {% if tour.image_url %}
-                        <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}" style="height: 240px; object-fit: cover;">
+                    {% if tour.image %}
+                        <img src="{{ tour.image.url }}" class="card-img-top" alt="{{ tour.name }}" style="height: 240px; object-fit: cover;">
                     {% else %}
                         <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ tour.name }}" style="height: 240px; object-fit: cover;">
                     {% endif %}
@@ -113,14 +127,10 @@
                     </div>
                 </div>
             </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <div class="alert alert-warning mb-0 d-inline-block px-5 rounded-pill">По вашему запросу ничего не найдено.</div>
-            </div>
             {% endfor %}
         </div>
 
-        {% if has_more %}
+        {% if tours %}
         <div class="text-center mt-5">
             <a href="{% url 'catalog' %}?destination={{ filters.destination }}&check_in={{ filters.check_in }}&check_out={{ filters.check_out }}"
                class="btn btn-outline-dark btn-lg rounded-pill px-5 fw-semibold" style="border-width: 2px;">
@@ -129,6 +139,140 @@
         </div>
         {% endif %}
 
+        {% if is_searched and not tours %}
+        <div class="text-center mt-5">
+            <div class="alert alert-warning mb-5 d-inline-block px-5 rounded-pill shadow-sm">По вашему запросу ничего не найдено.</div>
+
+            <div class="w-100 text-center mb-4 mt-2">
+                <h3 class="text-dark fw-bold mb-2 fs-3">Рекомендуем обратить внимание:</h3>
+                <p class="text-muted small mb-1">Популярные направления, которые выбирают наши клиенты прямо сейчас</p>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 justify-content-center text-start">
+                {% for p_tour in popular_tours %}
+                <div class="col" style="max-width: 420px;">
+                    <div class="card h-100 border-0 shadow-sm position-relative destination-card bg-white" style="border-radius: 16px; overflow: hidden; min-height: 440px;">
+
+                        {% if p_tour.image %}
+                            <img src="{{ p_tour.image.url }}" class="card-img-top" alt="{{ p_tour.name }}" style="height: 240px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ p_tour.name }}" style="height: 240px; object-fit: cover;">
+                        {% endif %}
+
+                        <div class="card-body d-flex flex-column bg-white text-dark p-4">
+                            <h5 class="card-title mb-1">
+                                <a href="{% url 'tour_detail' p_tour.pk %}" class="stretched-link text-decoration-none text-dark fw-bold fs-5">
+                                    {{ p_tour.name }}
+                                </a>
+                            </h5>
+                            <div class="text-warning-emphasis fw-bold small mb-2 d-flex align-items-center" style="position: relative; z-index: 5;">
+                                <span class="me-1">📍</span> Направление: {{ p_tour.country }}
+                            </div>
+                            <p class="card-text text-muted mb-4 small">{{ p_tour.description|truncatechars:90 }}</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark fs-4">{{ p_tour.cost_for_one_person }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{% url 'catalog' %}" class="btn btn-outline-dark btn-lg rounded-pill px-5 fw-semibold" style="border-width: 2px;">
+                    Показать ещё предложенные варианты ➔
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="text-dark fw-bold mb-2 fs-2">Why выбирают Tralley-Valley?</h2>
+            <p class="text-muted">Мы делаем ваше путешествие беззаботным и незабываемым</p>
+        </div>
+
+        <div class="row g-4 text-center justify-content-center">
+            <div class="col-12 col-md-4" style="max-width: 360px;">
+                <div class="p-3">
+                    <div class="feature-icon">🛡️</div>
+                    <h5 class="text-dark fw-bold mb-3">Надежная защита</h5>
+                    <p class="text-muted small">Все туры официально застрахованы. Мы гарантируем безопасность и поддержку на протяжении всей поездки 24/7.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4" style="max-width: 360px;">
+                <div class="p-3">
+                    <div class="feature-icon">🔥</div>
+                    <h5 class="text-dark fw-bold mb-3">Эксклюзивные гиды</h5>
+                    <p class="text-muted small">Наши гиды — местные эксперты, которые покажут вам не только стандартные достопримечательности, но и секретные локации.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4" style="max-width: 360px;">
+                <div class="p-3">
+                    <div class="feature-icon">💎</div>
+                    <h5 class="text-dark fw-bold mb-3">Честная цена</h5>
+                    <p class="text-muted small">Никаких скрытых сборов и доплат. В стоимость тура уже включено всё необходимое для комфортного отдыха.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container py-4" style="max-width: 800px;">
+        <div class="text-center mb-5">
+            <h2 class="text-dark fw-bold mb-2 fs-2">Часто задаваемые вопросы</h2>
+            <p class="text-muted">Отвечаем на то, что чаще всего интересует наших путешественников</p>
+        </div>
+
+        <div class="accordion accordion-flush" id="faqAccordion" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+
+            <div class="accordion-item border-0 mb-2 rounded-4 bg-white">
+                <h2 class="accordion-header" id="faq-headingOne">
+                    <button class="accordion-button collapsed fw-semibold text-dark p-4 rounded-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapseOne" aria-expanded="false" aria-controls="faq-collapseOne">
+                        Что входит в общую стоимость тура?
+                    </button>
+                </h2>
+                <div id="faq-collapseOne" class="accordion-collapse collapse" aria-labelledby="faq-headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted pt-0 px-4 pb-4 small">
+                        В стандартную стоимость большинства наших туров включено: проживание в проверенных отелях, трансфер по программе, экскурсии с гидом и базовая медицинская страховка. Точный список услуг указан в карточке каждого конкретного тура.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 mb-2 rounded-4 bg-white">
+                <h2 class="accordion-header" id="faq-headingTwo">
+                    <button class="accordion-button collapsed fw-semibold text-dark p-4 rounded-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapseTwo" aria-expanded="false" aria-controls="faq-collapseTwo">
+                        Можно ли вернуть деньги, если планы изменились?
+                    </button>
+                </h2>
+                <div id="faq-collapseTwo" class="accordion-collapse collapse" aria-labelledby="faq-headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted pt-0 px-4 pb-4 small">
+                        Да, условия отмены зависят от сроков. При отмене тура более чем за 14 дней до начала, мы возвращаем полную стоимость за вычетом фактически понесенных расходов авиакомпаний или отелей. Подробнее можно прочитать в договоре оферты при бронировании.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border-0 mb-0 rounded-4 bg-white">
+                <h2 class="accordion-header" id="faq-headingThree">
+                    <button class="accordion-button collapsed fw-semibold text-dark p-4 rounded-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapseThree" aria-expanded="false" aria-controls="faq-collapseThree">
+                        Как происходит оплата и подтверждение?
+                    </button>
+                </h2>
+                <div id="faq-collapseThree" class="accordion-collapse collapse" aria-labelledby="faq-headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted pt-0 px-4 pb-4 small">
+                        После того как вы оставите заявку, наш менеджер свяжется с вами для подтверждения наличия мест. Оплату можно произвести онлайн банковской картой. После оплаты все документы (ваучеры, страховка) придут вам на электронную почту.
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </section>
 {% endblock %}

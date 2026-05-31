@@ -1,17 +1,19 @@
 from django.contrib import admin
+from django.db import models
 from .models import Tour, Program, Hotel, Transport, AddService, TourOperator, HeaderSettings
-
+from image_uploader_widget.widgets import ImageUploaderWidget  # <-- ИМПОРТ КРАСИВОГО ВИДЖЕТА
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    # В таблице списков (отображаются свойства и поля)
     list_display = ('name', 'country', 'duration', 'cost_for_one_person')
     search_fields = ('name', 'country')
     list_filter = ('country',)
 
-    # Полный список ВСЕХ полей, которые теперь появятся при создании и редактировании тура
+    readonly_fields = ('slug',)
+
     fields = (
         'name',
+        'slug',  # Добавили отображение слага в админке
         'country',
         'description',
         'hotel_id',
@@ -22,9 +24,16 @@ class TourAdmin(admin.ModelAdmin):
         'date_end',
         'cost_for_one_person',
         'persons',
-        'image_url',
+        'image',  # Поменяли image_url на image
         'total_slots',
     )
+
+    # Принудительно подключаем красивый виджет для картинок
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'image':
+            kwargs['widget'] = ImageUploaderWidget
+        return super().formfield_for_dbfield(db_field, **kwargs)
+
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
@@ -54,7 +63,14 @@ class TourOperatorAdmin(admin.ModelAdmin):
     search_fields = ('name', 'country')
     list_filter = ('country',)
 
+
 @admin.register(HeaderSettings)
 class HeaderSettingsAdmin(admin.ModelAdmin):
     list_display = ('title', 'background_image')
     search_fields = ('title', 'background_image')
+
+    # И для шапки сайта тоже делаем красивую загрузку картинки
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'background_image':
+            kwargs['widget'] = ImageUploaderWidget
+        return super().formfield_for_dbfield(db_field, **kwargs)

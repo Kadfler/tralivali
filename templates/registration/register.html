@@ -3,19 +3,19 @@
 
 {% block title %}Регистрация | Tralley-Valley{% endblock %}
 
+{% block nav_theme_classes %}navbar-light text-dark{% endblock %}
+{% block nav_brand_class %}text-dark{% endblock %}
+{% block nav_btn_class %}btn-outline-dark{% endblock %}
+{% block nav_btn_catalog_class %}btn-outline-dark{% endblock %}
+{% block nav_btn_profile_class %}btn-outline-dark{% endblock %}
+
 {% block header_banner %}
-    <div class="position-absolute w-100" style="z-index: 10;">
+    <div class="bg-light border-bottom">
         {% block navigation %}
             {{ block.super }}
         {% endblock navigation %}
     </div>
 {% endblock header_banner %}
-
-{% block nav_theme_classes %}navbar-dark text-white{% endblock %}
-{% block nav_brand_class %}text-white{% endblock %}
-{% block nav_btn_class %}btn-outline-light{% endblock %}
-{% block nav_btn_catalog_class %}btn-outline-light{% endblock %}
-{% block nav_btn_profile_class %}btn-outline-light{% endblock %}
 
 {% block content %}
 <style>
@@ -24,6 +24,9 @@
         border: 1px solid rgba(0, 0, 0, 0.2) !important;
         color: #212529 !important;
         border-radius: 10px;
+        padding: 0.375rem 0.75rem;
+        display: block;
+        width: 100%;
     }
 
     .light-form input::placeholder {
@@ -53,11 +56,11 @@
     }
 </style>
 
-<div class="d-flex align-items-center justify-content-center min-vh-100 py-5"
-     style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+<div class="d-flex align-items-center justify-content-center py-5"
+     style="min-height: calc(100vh - 62px); background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
             url('{% if header_settings and header_settings.background_image %}{{ header_settings.background_image.url }}{% else %}/static/img/default-bg.jpg{% endif %}') no-repeat center center/cover; background-attachment: fixed;">
 
-    <div class="container my-5" style="max-width: 500px; position: relative; z-index: 2;">
+    <div class="container" style="max-width: 500px; position: relative; z-index: 2;">
         <div class="card bg-white border-0 shadow-lg p-4 rounded-4 light-form">
             <div class="card-body">
                 <h1 class="h3 text-center mb-4 text-dark fw-bold">Регистрация</h1>

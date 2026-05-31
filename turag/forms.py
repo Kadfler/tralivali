@@ -1,5 +1,7 @@
 from django import forms
-from .models import Review
+from .models import Review, AddService
+from django.contrib.auth.models import User
+
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -10,7 +12,15 @@ class ReviewForm(forms.ModelForm):
             'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write your review...'}),
         }
 
+
 class BookingForm(forms.Form):
+    services = forms.ModelMultipleChoiceField(
+        queryset=AddService.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False,  # Услуги ведь не обязательны
+        label="Дополнительные услуги"
+    )
+
     people_count = forms.IntegerField(
         min_value=1,
         initial=1,
@@ -53,3 +63,20 @@ class BookingForm(forms.Form):
             'maxlength': '3'
         })
     )
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = User  # Используем стандартного User
+        fields = ['username', 'first_name', 'last_name', 'email']  # Убрали 'avatar'!
+        labels = {
+            'username': 'Никнейм',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'Электронная почта',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Навешиваем Bootstrap-класс на все текстовые поля формы
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control'})

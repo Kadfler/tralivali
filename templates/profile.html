@@ -3,16 +3,14 @@
 
 {% block title %}Личный кабинет | Tralley-Valley{% endblock %}
 
-<!-- 1. УПРАВЛЕНИЕ ШАПКОЙ -->
 {% block header_banner %}
-    <div class="bg-body-secondary w-100 border-bottom">
-        {% block navigation %}
-            {{ block.super }}
-        {% endblock navigation %}
-    </div>
+<div class="bg-body-secondary w-100 border-bottom">
+    {% block navigation %}
+    {{ block.super }}
+    {% endblock navigation %}
+</div>
 {% endblock header_banner %}
 
-<!-- 2. НАСТРОЙКА ЦВЕТОВ НАВИГАЦИИ -->
 {% block nav_theme_classes %}navbar-light text-dark{% endblock %}
 {% block nav_brand_class %}text-dark{% endblock %}
 {% block nav_btn_class %}btn-outline-dark{% endblock %}
@@ -20,8 +18,14 @@
 {% block nav_btn_profile_class %}btn-outline-dark{% endblock %}
 
 
-<!-- 3. ОСНОВНОЙ КОНТЕНТ СТРАНИЦЫ -->
 {% block content %}
+<style>
+    /* Стили для скрытия элементов и работы кнопки "Показать ещё" */
+    .hidden-item {
+        display: none !important;
+    }
+</style>
+
 <div class="container my-5">
     <div class="row mb-4">
         <div class="col-12">
@@ -31,9 +35,8 @@
     </div>
 
     <div class="row g-4">
-        <!-- Левая колонка: Профиль -->
         <div class="col-lg-4">
-            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark">
+            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark" style="border-radius: 16px;">
                 <div class="text-center mb-3">
                     <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                          style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
@@ -56,7 +59,7 @@
                 </div>
 
                 <div class="d-grid gap-2 mt-4">
-                    <a href="#" class="btn btn-outline-dark btn-sm rounded-pill">Редактировать профиль</a>
+                    <a href="{% url 'profile_edit' %}" class="btn btn-outline-dark btn-sm rounded-pill">Редактировать профиль</a>
 
                     <form action="{% url 'logout' %}" method="post" class="d-grid m-0">
                         {% csrf_token %}
@@ -66,37 +69,157 @@
             </div>
         </div>
 
-        <!-- Правая колонка: Заказы -->
         <div class="col-lg-8">
-            <div class="card bg-white border-light-subtle shadow-sm p-4 h-100 text-dark">
-                <h3 class="fw-bold mb-3 text-dark">Мои забронированные туры</h3>
-                <div class="row row-cols-1 row-cols-md-2 g-4">
+
+            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark mb-4" style="border-radius: 16px;">
+                <h3 class="fw-bold mb-3 text-dark fs-4">Мои забронированные туры</h3>
+                <div class="row row-cols-1 row-cols-md-2 g-4" id="bookings-container">
                     {% for booking in bookings %}
-                    <div class="col">
-                        <div class="card h-100 bg-light border-light-subtle border-start border-success border-4 text-dark shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold text-dark">{{ booking.tour.name }}</h5>
-                                <p class="card-text text-muted mb-1">
-                                    <strong class="text-dark">Количество мест:</strong> {{ booking.people_count }}
-                                </p>
-                                <p class="card-text text-muted mb-3">
-                                    <strong class="text-dark">Дата оформления:</strong>
-                                    {{ booking.created_at|date:"d.m.Y H:i" }}
-                                </p>
-                                <span class="badge bg-success text-white">Оплачено</span>
+                    <div class="col booking-card {% if forloop.counter > 3 %}hidden-item{% endif %}">
+                        <div class="card h-100 bg-light border-light-subtle border-start border-4 text-dark shadow-sm
+                            {% if booking.status == 'pending' %}border-warning
+                            {% elif booking.status == 'confirmed' %}border-info
+                            {% elif booking.status == 'ready' %}border-success
+                            {% else %}border-danger{% endif %}">
+
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title fw-bold fs-6">
+                                        {% if booking.tour_id %}
+                                            <a href="{% url 'tour_detail' booking.tour_id %}" class="text-dark text-decoration-none link-primary">
+                                                {{ booking.tour.name }} 🔗
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted text-decoration-line-through">Тур больше недоступен</span>
+                                        {% endif %}
+                                    </h5>
+
+                                    <p class="card-text text-muted mb-1 small">
+                                        <strong class="text-dark">Количество мест:</strong> {{ booking.people_count }}
+                                    </p>
+                                    <p class="card-text text-muted mb-3 small">
+                                        <strong class="text-dark">Дата оформления:</strong> {{ booking.created_at|date:"d.m.Y H:i" }}
+                                    </p>
+
+                                    <div class="mb-3">
+                                        {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">В обработке</span>
+                                        {% elif booking.status == 'confirmed' %}
+                                        <span class="badge bg-info text-dark">Оплачено</span>
+                                        {% elif booking.status == 'ready' %}
+                                        <span class="badge bg-success text-white">Подтверждено</span>
+                                        {% else %}
+                                        <span class="badge bg-danger text-white">Отменено</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="border-top pt-3 mt-2">
+                                    {% if booking.status == 'ready' and booking.tickets_file %}
+                                    <div class="d-grid">
+                                        <a href="{{ booking.tickets_file.url }}" class="btn btn-sm btn-success rounded-pill fw-semibold" target="_blank">
+                                            📥 Скачать билеты (PDF)
+                                        </a>
+                                    </div>
+                                    {% elif booking.status == 'cancelled' %}
+                                    <small class="text-danger d-block text-center">Заказ аннулирован</small>
+                                    {% else %}
+                                    <div class="bg-body-secondary p-2 rounded-3 text-center">
+                                        <small class="text-muted d-block lh-sm" style="font-size: 0.75rem;">
+                                            ⏳ Документы формируются. Доступно за 2-3 дня до вылета.
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
                     {% empty %}
                     <div class="col-12">
-                        <div class="alert alert-light border border-light-subtle text-muted">
+                        <div class="alert alert-light border border-light-subtle text-muted text-center py-4 m-0">
                             Вы еще не забронировали ни одного тура. Все ваши путешествия появятся здесь!
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+
+                {% if bookings|length > 3 %}
+                <div class="text-center mt-3">
+                    <button id="load-more-bookings" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Показать все туры ({{ bookings|length }})</button>
+                </div>
+                {% endif %}
             </div>
+
+            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark" style="border-radius: 16px;">
+                <h3 class="fw-bold mb-3 text-dark fs-4">Мои отзывы</h3>
+                <div class="row row-cols-1 g-3" id="reviews-container">
+                    {% for review in reviews %}
+                    <div class="col review-card {% if forloop.counter > 3 %}hidden-item{% endif %}">
+                        <div class="p-3 bg-light rounded-3 border border-light-subtle shadow-sm">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                                <div>
+                                    <h6 class="fw-bold mb-0">
+                                        <a href="{% url 'tour_detail' review.tour.pk %}" class="text-dark text-decoration-none hover-warning">
+                                            Тур: {{ review.tour.name }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">{{ review.created_at|date:"d.m.Y в H:i" }}</small>
+                                </div>
+                                <div class="text-warning fw-bold fs-6">
+                                    {% if review.rating == 5 %}⭐⭐⭐⭐⭐
+                                    {% elif review.rating == 4 %}⭐⭐⭐⭐
+                                    {% elif review.rating == 3 %}⭐⭐⭐
+                                    {% elif review.rating == 2 %}⭐⭐
+                                    {% else %}⭐{% endif %}
+                                    <span class="text-dark small ms-1">({{ review.rating }}/5)</span>
+                                </div>
+                            </div>
+                            <p class="mb-0 text-secondary small" style="white-space: pre-line;">{{ review.text }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-light border border-light-subtle text-muted text-center py-4 m-0">
+                            Вы еще не оставили ни одного отзыва к турам.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if reviews|length > 3 %}
+                <div class="text-center mt-4">
+                    <button id="load-more-reviews" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Показать все отзывы ({{ reviews|length }})</button>
+                </div>
+                {% endif %}
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Логика раскрытия туров
+        const btnBookings = document.getElementById('load-more-bookings');
+        if (btnBookings) {
+            btnBookings.addEventListener('click', function() {
+                document.querySelectorAll('.booking-card.hidden-item').forEach(el => {
+                    el.classList.remove('hidden-item');
+                });
+                btnBookings.remove(); // Удаляем кнопку после раскрытия
+            });
+        }
+
+        // Логика раскрытия отзывов
+        const btnReviews = document.getElementById('load-more-reviews');
+        if (btnReviews) {
+            btnReviews.addEventListener('click', function() {
+                document.querySelectorAll('.review-card.hidden-item').forEach(el => {
+                    el.classList.remove('hidden-item');
+                });
+                btnReviews.remove(); // Удаляем кнопку после раскрытия
+            });
+        }
+    });
+</script>
 {% endblock %}

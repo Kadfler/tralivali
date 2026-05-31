@@ -22,30 +22,41 @@
 <div class="bg-light w-100 py-3">
     <div class="container-fluid px-3 px-lg-5 position-relative hero-content">
         <div class="row">
-            <div class="col-12 col-xl-9 col-xxl-8">
+            <div class="col-12">
 
-                <form method="get" action="" class="search-panel border-light-subtle bg-white shadow-sm">
+                <form method="get" action="" class="search-panel border border-light-subtle bg-white shadow-sm p-4 rounded-4">
                     <div class="row g-3 align-items-end">
                         <div class="col-12 col-md-6 col-xl-3">
-                            <label class="form-label text-dark mb-1">Направление</label>
-                            <input type="text" name="destination" class="form-control form-control-lg bg-light text-dark"
-                                   placeholder="Куда едем?" value="{{ filters.destination }}">
+                            <label class="form-label text-dark small fw-semibold mb-1">Направление</label>
+                            <input type="text" name="destination" class="form-control form-control-lg bg-light text-dark border-0"
+                                   style="border-radius: 10px;" placeholder="Куда едем?" value="{{ filters.destination }}">
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-dark mb-1">Начало</label>
-                            <input type="date" name="check_in" class="form-control form-control-lg bg-light text-dark"
-                                   value="{{ filters.check_in }}">
+                        <div class="col-12 col-md-3 col-xl-2">
+                            <label class="form-label text-dark small fw-semibold mb-1">Начало</label>
+                            <input type="date" name="check_in" class="form-control form-control-lg bg-light text-dark border-0"
+                                   style="border-radius: 10px;" value="{{ filters.check_in }}">
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-2">
-                            <label class="form-label text-dark mb-1">Конец</label>
-                            <input type="date" name="check_out" class="form-control form-control-lg bg-light text-dark"
-                                   value="{{ filters.check_out }}">
+                        <div class="col-12 col-md-3 col-xl-2">
+                            <label class="form-label text-dark small fw-semibold mb-1">Конец</label>
+                            <input type="date" name="check_out" class="form-control form-control-lg bg-light text-dark border-0"
+                                   style="border-radius: 10px;" value="{{ filters.check_out }}">
                         </div>
 
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label class="form-label text-dark small fw-semibold mb-1">Сортировка</label>
+                            <select name="sort_by" class="form-select form-select-lg bg-light text-dark border-0" style="border-radius: 10px;">
+                                <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Название (А-Я)</option>
+                                <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Название (Я-А)</option>
+                                <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Сначала дешевле</option>
+                                <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Сначала дороже</option>
+                                <option value="duration_asc" {% if current_sort == 'duration_asc' %}selected{% endif %}>По длительности (короткие сначала)</option>
+                                <option value="duration_desc" {% if current_sort == 'duration_desc' %}selected{% endif %}>По длительности (долгие сначала)</option>
+                            </select>
+                        </div>
                         <div class="col-12 col-xl-2 d-grid">
-                            <button type="submit" class="btn btn-warning btn-lg fw-semibold search-btn text-dark">
+                            <button type="submit" class="btn btn-warning btn-lg fw-semibold text-dark py-3" style="border-radius: 10px;">
                                 Найти
                             </button>
                         </div>
@@ -67,21 +78,25 @@
         </div>
 
         <div class="row g-4">
-            {% for tour in tours %}
+            {% for tour in page_obj %}
             <div class="col-12">
-                <div class="card h-100 border-light-subtle shadow-sm bg-white overflow-hidden text-dark">
+                <div class="card h-100 border-light-subtle shadow-sm bg-white overflow-hidden text-dark" style="border-radius: 16px;">
                     <div class="row g-0">
 
                         <div class="col-md-4 col-xl-3 position-relative overflow-hidden" style="min-height: 220px;">
-
-                            {% if tour.slots_left <= 0 %}
+                            {% if tour.is_expired %}
+                            <span class="position-absolute top-0 start-0 m-3 badge bg-secondary fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
+                                ⏳ Завершен
+                            </span>
+                            {% elif tour.slots_left <= 0 %}
                             <span class="position-absolute top-0 start-0 m-3 badge bg-danger fs-6 fw-bold shadow-sm py-2 px-3 rounded-pill" style="z-index: 15;">
                                 🛑 Билетов нет
                             </span>
                             {% endif %}
 
-                            {% if tour.image_url %}
-                                <img src="{{ tour.image_url }}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ tour.name }}">
+                            <!-- ИСПРАВЛЕНО: Вывод картинки адаптирован под новое поле модели Tour.image -->
+                            {% if tour.image %}
+                                <img src="{{ tour.image.url }}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ tour.name }}">
                             {% else %}
                                 <img src="{% static 'img/placeholder.jpg' %}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ tour.name }}">
                             {% endif %}
@@ -89,12 +104,17 @@
 
                         <div class="col-md-5 col-xl-6 p-4 d-flex flex-column justify-content-between border-end-md border-light-subtle">
                             <div>
-                                <h4 class="fw-bold mb-2">
+                                <h4 class="fw-bold mb-1">
                                     <a href="{% url 'tour_detail' tour.pk %}" class="text-decoration-none text-dark hover-warning">
                                         {{ tour.name }}
                                     </a>
                                 </h4>
 
+                                <div class="mb-3">
+                                    <span class="badge bg-warning-subtle text-warning-emphasis fs-6 fw-semibold px-3 py-1.5 rounded-pill border border-warning-subtle">
+                                        📍 {{ tour.country }}
+                                    </span>
+                                </div>
                                 <p class="text-muted mb-4 fs-6">{{ tour.description|truncatechars:250 }}</p>
                             </div>
 
@@ -111,7 +131,7 @@
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="me-2">⏱️</span>
-                                    <span>Длительность: 8 дней / 7 ночей</span>
+                                    <span>Длительность: {{ tour.duration }}</span>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="me-2">👤</span>
@@ -123,12 +143,24 @@
                         <div class="col-md-3 col-xl-3 p-4 bg-body-tertiary d-flex flex-column justify-content-center align-items-center align-items-md-end justify-content-md-between text-center text-md-end" style="min-width: 200px;">
                             <div class="mb-3 mb-md-0">
                                 <span class="d-block text-muted small mb-1">Итоговая стоимость</span>
-                                <h3 class="fw-extrabold text-dark mb-0 fs-2">{{ tour.cost_for_one_person }} ₽</h3>
+                                <h3 class="fw-extrabold text-dark mb-0 fs-2">
+                                    {% if tour.is_expired %}
+                                        <span class="text-secondary fs-4">Завершен</span>
+                                    {% else %}
+                                        {{ tour.cost_for_one_person }} ₽
+                                    {% endif %}
+                                </h3>
                             </div>
 
                             <div class="w-100">
-                                <a href="{% url 'tour_detail' tour.pk %}" class="btn {% if tour.slots_left <= 0 %}btn-outline-secondary{% else %}btn-warning{% endif %} w-100 fw-semibold text-dark rounded-pill py-2">
-                                    {% if tour.slots_left <= 0 %}Мест нет{% else %}Дополнительно ➔{% endif %}
+                                <a href="{% url 'tour_detail' tour.pk %}" class="btn {% if tour.slots_left <= 0 or tour.is_expired %}btn-outline-secondary{% else %}btn-warning{% endif %} w-100 fw-semibold text-dark rounded-pill py-2">
+                                    {% if tour.is_expired %}
+                                        Завершен
+                                    {% elif tour.slots_left <= 0 %}
+                                        Мест нет
+                                    {% else %}
+                                        Дополнительно ➔
+                                    {% endif %}
                                 </a>
                             </div>
                         </div>
@@ -138,12 +170,61 @@
             </div>
             {% empty %}
             <div class="col-12">
-                <div class="alert alert-warning mb-0 text-center py-4">
+                <div class="alert alert-warning mb-0 text-center py-4 rounded-4 shadow-sm">
                     По выбранным фильтрам ничего не найдено. Попробуйте изменить параметры поиска!
                 </div>
             </div>
             {% endfor %}
         </div>
+
+        <!-- ================= БЛОК ПАГИНАЦИИ ================= -->
+        {% if page_obj %}
+        <div class="mt-5">
+            {% if page_obj.has_other_pages %}
+            <nav class="d-flex justify-content-center">
+                <ul class="pagination pagination-md shadow-sm rounded-pill p-1 bg-white border">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link border-0 text-dark rounded-circle px-3 py-2" href="?page={{ page_obj.previous_page_number }}&destination={{ filters.destination }}&check_in={{ filters.check_in }}&check_out={{ filters.check_out }}&sort_by={{ current_sort }}">
+                            ←
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link border-0 bg-warning text-dark fw-bold rounded-circle px-3 py-2 shadow-sm">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link border-0 text-dark rounded-circle px-3 py-2" href="?page={{ num }}&destination={{ filters.destination }}&check_in={{ filters.check_in }}&check_out={{ filters.check_out }}&sort_by={{ current_sort }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link border-0 text-dark rounded-circle px-3 py-2" href="?page={{ page_obj.next_page_number }}&destination={{ filters.destination }}&check_in={{ filters.check_in }}&check_out={{ filters.check_out }}&sort_by={{ current_sort }}">
+                            →
+                        </a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+            {% endif %}
+
+            <div class="text-center text-muted small mt-2">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </div>
+        </div>
+        {% endif %}
+        <!-- =============================================================== -->
+
     </div>
 </section>
 {% endblock %}
