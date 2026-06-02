@@ -16,28 +16,27 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
 
-            # ================= ОТПРАВКА ПИСЬМА ПРИ РЕГИСТРАЦИИ =================
-            if user.email:
-                subject = "Добро пожаловать в Tralley-Valley! ✈️"
-                message = (
-                    f"Добро пожаловать, {user.username}!\n\n"
-                    f"Вы успешно зарегистрировались в туристическом агентстве Tralley-Valley.\n"
-                    f"Теперь вам доступно быстрое бронирование туров, управление заказами "
-                    f"и история ваших путешествий прямо в личном кабинете.\n\n"
-                    f"Откройте мир вместе с нами!\n\n"
-                    f"С уважением, команда Tralley-Valley"
+            # ОТПРАВКА ПИСЬМА ПРИ РЕГИСТРАЦИИ
+            subject = "Добро пожаловать в Tralley-Valley! ✈️"
+            message = (
+                f"Добро пожаловать, {user.username}!\n\n"
+                f"Вы успешно зарегистрировались в туристическом агентстве Tralley-Valley.\n"
+                f"Теперь вам доступно быстрое бронирование туров, управление заказами "
+                f"и история ваших путешествий прямо в личном кабинете.\n\n"
+                f"Откройте мир вместе с нами!\n\n"
+                f"С уважением, команда Tralley-Valley"
+            )
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],  # Исправлено: user.email вместо request.user.email
+                    fail_silently=False,
                 )
-                try:
-                    send_mail(
-                        subject=subject,
-                        message=message,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=True,  # Сайт не упадет, если у почтового сервера будут проблемы
-                    )
-                except Exception:
-                    pass
-            # ===================================================================
+            except Exception as e:
+                print(f"Ошибка отправки письма: {e}")  # Для отладки
+                # Не скрывайте ошибку полностью в разработке
 
             login(request, user)
             return redirect('catalog')
@@ -48,7 +47,6 @@ def register_view(request):
     return render(request, 'registration/register.html', {
         'form': form
     })
-
 
 def login_view(request):
     if request.user.is_authenticated:

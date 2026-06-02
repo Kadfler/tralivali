@@ -43,7 +43,6 @@
         color: rgba(0, 0, 0, 0.5) !important;
         font-size: 0.8rem;
     }
-    /* Эффект плавного изменения цвета при наведении на кнопку */
     .btn-bright-yellow {
         background-color: #ffc107 !important;
         border-color: #ffc107 !important;
@@ -103,4 +102,35 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const phoneInput = document.querySelector('input[name="phone"]');
+
+        // Маска телефона 8(XXX)XXX-XX-XX
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let val = e.target.value.replace(/\D/g, '');
+                if (val.length > 0 && val[0] !== '8') val = '8' + val;
+                else if (val.length === 0) val = '8';
+
+                let res = '8(';
+                if (val.length > 1) res += val.substring(1, 4);
+                if (val.length > 4) res += ')' + val.substring(4, 7);
+                if (val.length > 7) res += '-' + val.substring(7, 9);
+                if (val.length > 9) res += '-' + val.substring(9, 11);
+
+                e.target.value = res;
+            });
+        }
+
+        form.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Обработка...';
+            return true;
+        });
+    });
+</script>
 {% endblock %}

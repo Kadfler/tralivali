@@ -13,7 +13,9 @@ dependencies = [
     "django-autoslug (>=1.9.9,<2.0.0)",
     "django-image-uploader-widget (>=1.1.1,<2.0.0)",
     "faker (>=40.19.1,<41.0.0)",
-    "python-dotenv (>=1.2.2,<2.0.0)"
+    "python-dotenv (>=1.2.2,<2.0.0)",
+    "yookassa (>=3.10.1,<4.0.0)",
+    "python-decouple (>=3.8,<4.0)"
 ]
 
 

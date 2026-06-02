@@ -89,4 +89,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', function() {
+            // Блокируем кнопку и меняем текст, чтобы пользователь не кликал снова
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Обработка...';
+            return true;
+        });
+    });
+</script>
 {% endblock %}

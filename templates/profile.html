@@ -17,13 +17,9 @@
 {% block nav_btn_catalog_class %}btn-outline-dark{% endblock %}
 {% block nav_btn_profile_class %}btn-outline-dark{% endblock %}
 
-
 {% block content %}
 <style>
-    /* Стили для скрытия элементов и работы кнопки "Показать ещё" */
-    .hidden-item {
-        display: none !important;
-    }
+    .hidden-item { display: none !important; }
 </style>
 
 <div class="container my-5">
@@ -45,22 +41,17 @@
                     <h5 class="fw-bold mb-0 text-dark">{{ user.first_name }} {{ user.last_name }}</h5>
                     <small class="text-muted">@{{ user.username }}</small>
                 </div>
-
                 <hr class="text-muted">
-
                 <div class="mb-3">
                     <label class="small text-muted d-block">Email адрес</label>
                     <span class="fw-medium text-dark">{{ user.email|default:"Не указан" }}</span>
                 </div>
-
                 <div class="mb-3">
                     <label class="small text-muted d-block">Дата регистрации</label>
                     <span class="fw-medium text-dark">{{ user.date_joined|date:"d.m.Y" }}</span>
                 </div>
-
                 <div class="d-grid gap-2 mt-4">
                     <a href="{% url 'profile_edit' %}" class="btn btn-outline-dark btn-sm rounded-pill">Редактировать профиль</a>
-
                     <form action="{% url 'logout' %}" method="post" class="d-grid m-0">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">Выйти из аккаунта</button>
@@ -70,156 +61,115 @@
         </div>
 
         <div class="col-lg-8">
-
-            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark mb-4" style="border-radius: 16px;">
-                <h3 class="fw-bold mb-3 text-dark fs-4">Мои забронированные туры</h3>
-                <div class="row row-cols-1 row-cols-md-2 g-4" id="bookings-container">
-                    {% for booking in bookings %}
-                    <div class="col booking-card {% if forloop.counter > 3 %}hidden-item{% endif %}">
-                        <div class="card h-100 bg-light border-light-subtle border-start border-4 text-dark shadow-sm
-                            {% if booking.status == 'pending' %}border-warning
-                            {% elif booking.status == 'confirmed' %}border-info
-                            {% elif booking.status == 'ready' %}border-success
-                            {% else %}border-danger{% endif %}">
-
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <h5 class="card-title fw-bold fs-6">
-                                        {% if booking.tour_id %}
-                                            <a href="{% url 'tour_detail' booking.tour_id %}" class="text-dark text-decoration-none link-primary">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card bg-white border-light-subtle shadow-sm p-3 text-dark h-100" style="border-radius: 16px;">
+                        <h3 class="fw-bold mb-3 text-dark fs-5">Мои брони</h3>
+                        <div class="row row-cols-1 g-3" id="bookings-container">
+                            {% for booking in bookings %}
+                            <div class="col booking-card {% if forloop.counter > 2 %}hidden-item{% endif %}">
+                                <div class="card bg-light border-light-subtle border-start border-4 p-3 h-100
+                                    {% if booking.status == 'pending' %}border-warning{% elif booking.status == 'confirmed' %}border-info{% elif booking.status == 'ready' %}border-success{% else %}border-danger{% endif %}">
+                                    <h6 class="fw-bold mb-1">
+                                        {% if booking.tour %}
+                                            <a href="{% url 'tour_detail' booking.tour.tour_id %}" class="text-dark text-decoration-none">
                                                 {{ booking.tour.name }} 🔗
                                             </a>
                                         {% else %}
-                                            <span class="text-muted text-decoration-line-through">Тур больше недоступен</span>
+                                            {{ booking.tour.name }}
                                         {% endif %}
-                                    </h5>
-
-                                    <p class="card-text text-muted mb-1 small">
-                                        <strong class="text-dark">Количество мест:</strong> {{ booking.people_count }}
-                                    </p>
-                                    <p class="card-text text-muted mb-3 small">
-                                        <strong class="text-dark">Дата оформления:</strong> {{ booking.created_at|date:"d.m.Y H:i" }}
-                                    </p>
-
-                                    <div class="mb-3">
-                                        {% if booking.status == 'pending' %}
-                                        <span class="badge bg-warning text-dark">В обработке</span>
-                                        {% elif booking.status == 'confirmed' %}
-                                        <span class="badge bg-info text-dark">Оплачено</span>
-                                        {% elif booking.status == 'ready' %}
-                                        <span class="badge bg-success text-white">Подтверждено</span>
-                                        {% else %}
-                                        <span class="badge bg-danger text-white">Отменено</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="border-top pt-3 mt-2">
-                                    {% if booking.status == 'ready' and booking.tickets_file %}
+                                    </h6>
+                                    <p class="text-muted small mb-2">Мест: {{ booking.people_count }}</p>
+                                    {% if booking.status != 'cancelled' %}
                                     <div class="d-grid">
-                                        <a href="{{ booking.tickets_file.url }}" class="btn btn-sm btn-success rounded-pill fw-semibold" target="_blank">
-                                            📥 Скачать билеты (PDF)
-                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill"
+                                                data-bs-toggle="modal" data-bs-target="#cancelModal"
+                                                data-booking-id="{{ booking.id }}"
+                                                data-is-full-refund="{{ booking.can_cancel_full_refund|yesno:'true,false' }}">
+                                            ❌ Отменить заказ
+                                        </button>
                                     </div>
-                                    {% elif booking.status == 'cancelled' %}
-                                    <small class="text-danger d-block text-center">Заказ аннулирован</small>
                                     {% else %}
-                                    <div class="bg-body-secondary p-2 rounded-3 text-center">
-                                        <small class="text-muted d-block lh-sm" style="font-size: 0.75rem;">
-                                            ⏳ Документы формируются. Доступно за 2-3 дня до вылета.
-                                        </small>
-                                    </div>
+                                    <small class="text-danger">Заказ аннулирован</small>
                                     {% endif %}
                                 </div>
                             </div>
+                            {% empty %}
+                            <p class="small text-muted">Нет броней.</p>
+                            {% endfor %}
                         </div>
+                        {% if bookings|length > 2 %}
+                        <button id="load-more-bookings" class="btn btn-sm btn-link p-0 mt-2 small text-decoration-none">Показать ещё</button>
+                        {% endif %}
                     </div>
-                    {% empty %}
-                    <div class="col-12">
-                        <div class="alert alert-light border border-light-subtle text-muted text-center py-4 m-0">
-                            Вы еще не забронировали ни одного тура. Все ваши путешествия появятся здесь!
-                        </div>
-                    </div>
-                    {% endfor %}
                 </div>
 
-                {% if bookings|length > 3 %}
-                <div class="text-center mt-3">
-                    <button id="load-more-bookings" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Показать все туры ({{ bookings|length }})</button>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="card bg-white border-light-subtle shadow-sm p-4 text-dark" style="border-radius: 16px;">
-                <h3 class="fw-bold mb-3 text-dark fs-4">Мои отзывы</h3>
-                <div class="row row-cols-1 g-3" id="reviews-container">
-                    {% for review in reviews %}
-                    <div class="col review-card {% if forloop.counter > 3 %}hidden-item{% endif %}">
-                        <div class="p-3 bg-light rounded-3 border border-light-subtle shadow-sm">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-                                <div>
-                                    <h6 class="fw-bold mb-0">
-                                        <a href="{% url 'tour_detail' review.tour.pk %}" class="text-dark text-decoration-none hover-warning">
-                                            Тур: {{ review.tour.name }}
-                                        </a>
-                                    </h6>
-                                    <small class="text-muted">{{ review.created_at|date:"d.m.Y в H:i" }}</small>
-                                </div>
-                                <div class="text-warning fw-bold fs-6">
-                                    {% if review.rating == 5 %}⭐⭐⭐⭐⭐
-                                    {% elif review.rating == 4 %}⭐⭐⭐⭐
-                                    {% elif review.rating == 3 %}⭐⭐⭐
-                                    {% elif review.rating == 2 %}⭐⭐
-                                    {% else %}⭐{% endif %}
-                                    <span class="text-dark small ms-1">({{ review.rating }}/5)</span>
+                <div class="col-lg-6">
+                    <div class="card bg-white border-light-subtle shadow-sm p-3 text-dark h-100" style="border-radius: 16px;">
+                        <h3 class="fw-bold mb-3 text-dark fs-5">Мои отзывы</h3>
+                        <div class="row row-cols-1 g-3" id="reviews-container">
+                            {% for review in reviews %}
+                            <div class="col review-card {% if forloop.counter > 2 %}hidden-item{% endif %}">
+                                <div class="p-2 bg-light rounded border border-light-subtle small h-100">
+                                    <div class="fw-bold">{{ review.tour.name }}</div>
+                                    <div class="text-warning mb-1">{% for i in "12345"|slice:review.rating %}⭐{% endfor %}</div>
+                                    <p class="mb-0 text-secondary">{{ review.text|truncatechars:70 }}</p>
                                 </div>
                             </div>
-                            <p class="mb-0 text-secondary small" style="white-space: pre-line;">{{ review.text }}</p>
+                            {% empty %}
+                            <p class="small text-muted">Нет отзывов.</p>
+                            {% endfor %}
                         </div>
+                        {% if reviews|length > 2 %}
+                        <button id="load-more-reviews" class="btn btn-sm btn-link p-0 mt-2 small text-decoration-none">Показать ещё</button>
+                        {% endif %}
                     </div>
-                    {% empty %}
-                    <div class="col-12">
-                        <div class="alert alert-light border border-light-subtle text-muted text-center py-4 m-0">
-                            Вы еще не оставили ни одного отзыва к турам.
-                        </div>
-                    </div>
-                    {% endfor %}
                 </div>
-
-                {% if reviews|length > 3 %}
-                <div class="text-center mt-4">
-                    <button id="load-more-reviews" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Показать все отзывы ({{ reviews|length }})</button>
-                </div>
-                {% endif %}
             </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Подтверждение отмены</h5></div>
+            <div class="modal-body"><p id="refund-warning">Вы уверены?</p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <form action="{% url 'cancel_booking' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="booking_id" id="modal-booking-id">
+                    <button type="submit" class="btn btn-danger">Да, отменить</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Логика раскрытия туров
-        const btnBookings = document.getElementById('load-more-bookings');
-        if (btnBookings) {
-            btnBookings.addEventListener('click', function() {
-                document.querySelectorAll('.booking-card.hidden-item').forEach(el => {
-                    el.classList.remove('hidden-item');
-                });
-                btnBookings.remove(); // Удаляем кнопку после раскрытия
-            });
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Модалка
+        const cancelModal = document.getElementById('cancelModal');
+        cancelModal.addEventListener('show.bs.modal', function (event) {
+            const btn = event.relatedTarget;
+            document.getElementById('modal-booking-id').value = btn.getAttribute('data-booking-id');
+            document.getElementById('refund-warning').innerText = (btn.getAttribute('data-is-full-refund') === 'true')
+                ? "Бронирование оформлено менее 2 часов назад, вы получите полный возврат!"
+                : "Вы уверены, что хотите отменить этот заказ?";
+        });
 
-        // Логика раскрытия отзывов
-        const btnReviews = document.getElementById('load-more-reviews');
-        if (btnReviews) {
-            btnReviews.addEventListener('click', function() {
-                document.querySelectorAll('.review-card.hidden-item').forEach(el => {
-                    el.classList.remove('hidden-item');
-                });
-                btnReviews.remove(); // Удаляем кнопку после раскрытия
+        // Показать ещё
+        function setupLoadMore(btnId, contId, cardClass) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll(contId + ' ' + cardClass + '.hidden-item').forEach((item, i) => { if(i<2) item.classList.remove('hidden-item'); });
+                if (document.querySelectorAll(contId + ' ' + cardClass + '.hidden-item').length === 0) btn.style.display = 'none';
             });
         }
+        setupLoadMore('load-more-bookings', '#bookings-container', '.booking-card');
+        setupLoadMore('load-more-reviews', '#reviews-container', '.review-card');
     });
 </script>
 {% endblock %}

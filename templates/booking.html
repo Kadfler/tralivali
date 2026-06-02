@@ -4,21 +4,16 @@
 {% block title %}Бронирование {{ tour.name }} | Tralley-Valley{% endblock %}
 
 {% block header_banner %}
-    <div class="bg-light border-bottom">
-        {% block navigation %}
-            {{ block.super }}
-        {% endblock navigation %}
-    </div>
+<div class="bg-light border-bottom">
+    {% block navigation %}
+    {{ block.super }}
+    {% endblock navigation %}
+</div>
 {% endblock header_banner %}
 
-{% block nav_theme_classes %}navbar-light text-dark{% endblock %}
-{% block nav_brand_class %}text-dark{% endblock %}
-{% block nav_btn_class %}btn-outline-dark{% endblock %}
-{% block nav_btn_catalog_class %}btn-outline-dark{% endblock %}
-{% block nav_btn_profile_class %}btn-outline-dark{% endblock %}
 {% block content %}
 <style>
-    .light-form input, .light-form select, .light-form textarea {
+    .light-form input:not([type="checkbox"]), .light-form select, .light-form textarea {
         background-color: #fff !important;
         border: 1px solid rgba(0, 0, 0, 0.2) !important;
         color: #212529 !important;
@@ -27,21 +22,9 @@
         display: block;
         width: 100%;
     }
-    .light-form input:focus, .light-form textarea:focus, .light-form select:focus {
-        background-color: #fff !important;
-        color: #212529 !important;
-        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
-        border-color: #ffc107 !important;
-    }
     .btn-bright-yellow {
         background-color: #ffc107 !important;
         border-color: #ffc107 !important;
-        transition: all 0.2s ease-in-out;
-    }
-    .btn-bright-yellow:hover {
-        background-color: #ffca28 !important;
-        border-color: #ffca28 !important;
-        transform: translateY(-1px);
     }
 </style>
 
@@ -54,103 +37,121 @@
             <h2 class="fw-bold mb-2 text-dark text-center">Бронирование тура</h2>
             <h4 class="text-warning-emphasis fw-bold text-center mb-4">{{ tour.name }}</h4>
 
+            {% if form.errors %}
+            <div class="alert alert-danger small">
+                {% for field in form %}{% for error in field.errors %}{{ error }}<br>{% endfor %}{% endfor %}
+            </div>
+            {% endif %}
+
             <div class="p-3 bg-light rounded-3 mb-4 text-center border border-light-subtle">
-                <span class="text-muted d-block small">Стоимость за одного человека</span>
-                <strong class="text-dark fs-3">{{ tour.cost_for_one_person }} ₽</strong>
+                <span class="text-muted d-block small">Стоимость (итоговая)</span>
+                <strong class="text-dark fs-3" id="total-price-display">{{ tour.cost_for_one_person }} ₽</strong>
             </div>
 
-            <form method="post" action="{% url 'book_tour' tour.pk %}">
+            <form method="post" action="{% url 'book_tour' tour.pk %}" id="bookingForm">
                 {% csrf_token %}
 
                 <div class="mb-3">
                     <label class="form-label text-dark fw-semibold small">{{ form.people_count.label }}</label>
                     {{ form.people_count }}
-                    {% if form.people_count.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.people_count.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
+                    <div id="slots-warning" class="text-danger small fw-bold mt-1" style="display: none;">
+                        Недостаточно мест! Доступно: {{ tour.slots_left }}
+                    </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-dark fw-semibold small d-block mb-2">{{ form.services.label }}</label>
+                    <label class="form-label text-dark fw-semibold small d-block mb-2">Дополнительные услуги</label>
                     <div class="p-3 border border-light-subtle bg-light rounded-3" style="max-height: 200px; overflow-y: auto;">
-                        {% if form.services.field.queryset.exists %}
-                            {% for checkbox in form.services %}
-                                <div class="form-check mb-2 d-flex align-items-center">
-                                    <div style="width: auto; display: inline-block;">
-                                        {{ checkbox.tag }}
-                                    </div>
-                                    <label class="form-check-label text-dark small ms-2" for="{{ checkbox.id_for_label }}">
-                                        {{ checkbox.choice_label }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <span class="text-muted small">Для данного тура нет доступных услуг.</span>
-                        {% endif %}
+                        {% for checkbox in form.services %}
+                        <div class="form-check d-flex align-items-center mb-2">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label text-dark small ms-2" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% if form.services.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.services.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
                 </div>
+
                 <div class="mb-4">
-                    <label class="form-label text-dark fw-semibold small">{{ form.user_comment.label }}</label>
+                    <label class="form-label text-dark fw-semibold small">Комментарий</label>
                     {{ form.user_comment }}
-                    {% if form.user_comment.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.user_comment.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
                 </div>
 
                 <div class="p-4 bg-body-tertiary rounded-3 mb-4 border border-light-subtle shadow-sm">
-                    <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
-                        <span class="me-2">💳</span> Псевдо-оплата
-                    </h5>
-
-                    <div class="mb-3">
-                        <label class="form-label text-muted small mb-1">Номер карты</label>
-                        {{ form.card_number }}
-                        {% if form.card_number.errors %}
-                            <div class="text-danger small mt-1">Поле обязательно для заполнения</div>
-                        {% endif %}
-                    </div>
-
+                    <h5 class="fw-bold mb-3 text-dark">💳 Псевдо-оплата</h5>
+                    <div class="mb-3">{{ form.card_number }}</div>
                     <div class="row g-2">
-                        <div class="col-6">
-                            <label class="form-label text-muted small mb-1">Срок действия</label>
-                            {{ form.card_expiry }}
-                            {% if form.card_expiry.errors %}
-                                <div class="text-danger small mt-1">Заполните срок</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label text-muted small mb-1">CVC / CVV</label>
-                            {{ form.card_cvc }}
-                            {% if form.card_cvc.errors %}
-                                <div class="text-danger small mt-1">Заполните код</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="form-text text-muted mt-3 lh-sm" style="font-size: 0.8rem;">
-                        🔒 Это безопасная демо-панель. Настоящие деньги списаны не будут.
+                        <div class="col-6">{{ form.card_expiry }}</div>
+                        <div class="col-6">{{ form.card_cvc }}</div>
                     </div>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-bright-yellow btn-lg fw-bold text-dark rounded-pill py-3 shadow-sm">
+                    <button type="submit" class="btn btn-bright-yellow btn-lg fw-bold text-dark rounded-pill py-3">
                         Оплатить и подтвердить
                     </button>
-                    <a href="{% url 'tour_detail' tour.pk %}" class="btn btn-link text-muted btn-sm mt-2 text-decoration-none text-center">
-                        ← Вернуться к описанию тура
-                    </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const basePrice = parseFloat("{{ tour.cost_for_one_person }}");
+    const peopleInput = document.querySelector('input[name="people_count"]');
+    const serviceCheckboxes = document.querySelectorAll('input[name="services"]');
+    const totalDisplay = document.getElementById('total-price-display');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const warning = document.getElementById('slots-warning');
+    const maxSlots = {{ tour.slots_left }};
+
+    // Поля оплаты
+    const cardInput = document.querySelector('input[name="card_number"]');
+    const expiryInput = document.querySelector('input[name="card_expiry"]');
+    const cvcInput = document.querySelector('input[name="card_cvc"]');
+
+    function calculateTotal() {
+        let total = basePrice * (parseInt(peopleInput.value) || 1);
+        serviceCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                const priceMatch = cb.nextElementSibling.textContent.match(/(\d+)/);
+                if (priceMatch) total += parseFloat(priceMatch[0]);
+            }
+        });
+        totalDisplay.innerText = total.toLocaleString() + ' ₽';
+    }
+
+    function validateSlots() {
+        const requested = parseInt(peopleInput.value) || 0;
+        if (requested > maxSlots) {
+            warning.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.5";
+        } else {
+            warning.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+    }
+
+    peopleInput.addEventListener('input', () => {
+        calculateTotal();
+        validateSlots();
+    });
+
+    serviceCheckboxes.forEach(cb => cb.addEventListener('change', calculateTotal));
+
+    // Маски
+    cardInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
+    });
+    expiryInput.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '').substring(0, 4);
+        e.target.value = v.length > 2 ? v.substring(0, 2) + '/' + v.substring(2) : v;
+    });
+    cvcInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+    });
+});
+</script>
 {% endblock %}

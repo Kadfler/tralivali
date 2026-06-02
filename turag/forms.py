@@ -1,6 +1,8 @@
 from django import forms
 from .models import Review, AddService
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+import re
 
 
 class ReviewForm(forms.ModelForm):
@@ -17,9 +19,14 @@ class BookingForm(forms.Form):
     services = forms.ModelMultipleChoiceField(
         queryset=AddService.objects.all(),
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-        required=False,  # Услуги ведь не обязательны
+        required=False,
         label="Дополнительные услуги"
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Этот метод переопределяет, как именно отображается каждая услуга в списке
+        self.fields['services'].label_from_instance = lambda obj: f"{obj.name} (+{obj.cost} ₽)"
 
     people_count = forms.IntegerField(
         min_value=1,
@@ -63,6 +70,24 @@ class BookingForm(forms.Form):
             'maxlength': '3'
         })
     )
+
+    def clean_card_number(self):
+        data = self.cleaned_data['card_number']
+        if not re.match(r'^\d{4} \d{4} \d{4} \d{4}$', data):
+            raise ValidationError("Введите номер карты в формате 0000 0000 0000 0000")
+        return data
+
+    def clean_card_expiry(self):
+        data = self.cleaned_data['card_expiry']
+        if not re.match(r'^(0[1-9]|1[0-2])\/\d{2}$', data):
+            raise ValidationError("Введите дату в формате ММ/ГГ")
+        return data
+
+    def clean_card_cvc(self):
+        data = self.cleaned_data['card_cvc']
+        if not re.match(r'^\d{3}$', data):
+            raise ValidationError("CVC должен состоять из 3 цифр")
+        return data
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:

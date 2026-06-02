@@ -6,11 +6,25 @@ import re
 
 User = get_user_model()
 
+
 class RegisterForm(UserCreationForm):
     full_name = forms.CharField(
         label='ФИО',
-        max_length=150
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'pattern': '^[А-Яа-яЁё\s]+$',  # Запрещает цифры и латиницу в браузере
+            'title': 'Введите ФИО используя только кириллицу',
+            'placeholder': 'Иванов Иван Иванович'
+        })
     )
+
+    def clean_full_name(self):
+        data = self.cleaned_data['full_name']
+        # Проверка на сервере через регулярное выражение
+        if not re.match(r'^[А-Яа-яЁё\s]+$', data):
+            raise ValidationError("ФИО должно содержать только кириллицу.")
+        return data
 
     phone = forms.CharField(
         label='Телефон',
@@ -55,6 +69,14 @@ class RegisterForm(UserCreationForm):
         self.fields['password1'].label = 'Пароль'
         self.fields['password2'].label = 'Повтор пароля'
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.first_name = self.cleaned_data.get('full_name')
+        user.email = self.cleaned_data.get('email')
+        if commit:
+            user.save()
+            return user
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
 
@@ -93,16 +115,7 @@ class RegisterForm(UserCreationForm):
 
         return email
 
-def save(self, commit=True):
-    user = super().save(commit=False)
-    user.first_name = self.cleaned_data.get('full_name')
-    user.email = self.cleaned_data.get('email')
-    user.phone = self.cleaned_data.get('phone')
 
-    if commit:
-        user.save()
-
-    return user
 
 
 class LoginForm(AuthenticationForm):

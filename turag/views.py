@@ -4,10 +4,12 @@ from .models import Tour, Review, HeaderSettings, Booking, AddService
 from .forms import ReviewForm, BookingForm, ProfileEditForm
 from django.contrib import messages
 from django.utils import timezone
+from datetime import timedelta
 from django.db.models import F, DurationField, ExpressionWrapper, IntegerField, Case, When, Value
 from django.core.paginator import Paginator
-from django.core.mail import send_mail  # Импорт утилиты отправки почты
-from django.conf import settings  # Импорт настроек проекта settings.py
+from django.core.mail import send_mail
+from django.conf import settings
+from django.db import transaction
 
 
 def get_filtered_tours(request, tours_queryset):
@@ -181,67 +183,85 @@ def add_review(request, pk):
 
 @login_required
 def book_tour(request, tour_id):
-    tour = get_object_or_404(Tour, pk=tour_id)
     header_settings = HeaderSettings.objects.first()
 
     if request.method == 'POST':
         form = BookingForm(request.POST)
 
-        if tour.slots_left <= 0 or tour.is_expired:
-            messages.error(request, "К сожалению, этот тур уже недоступен для бронирования.")
-            return redirect('tour_detail', pk=tour_id)
+        # Используем транзакцию, чтобы все действия с БД были атомарными
+        try:
+            with transaction.atomic():
+                # Блокируем объект тура на уровне БД
+                tour = Tour.objects.select_for_update().get(pk=tour_id)
 
-        if form.is_valid():
-            people_count = form.cleaned_data['people_count']
-            user_comment = form.cleaned_data['user_comment']
+                if tour.slots_left <= 0 or tour.is_expired:
+                    messages.error(request, "К сожалению, этот тур уже недоступен для бронирования.")
+                    return redirect('tour_detail', pk=tour_id)
 
-            current_booked = tour.booked_slots if tour.booked_slots is not None else 0
-            current_total = tour.total_slots if tour.total_slots is not None else 20
-            available_slots = current_total - current_booked
+                # Проверка: не бронировал ли пользователь этот тур ранее
+                if Booking.objects.filter(user=request.user, tour=tour).exists():
+                    messages.error(request, "Вы уже оформили бронь на этот тур.")
+                    return redirect('tour_detail', pk=tour_id)
 
-            if available_slots >= people_count:
-                Booking.objects.create(
-                    user=request.user,
-                    tour=tour,
-                    people_count=people_count,
-                    user_comment=user_comment
-                )
+                if form.is_valid():
+                    people_count = form.cleaned_data['people_count']
+                    user_comment = form.cleaned_data['user_comment']
+                    selected_services = form.cleaned_data['services']  # Получаем выбранные услуги
 
-                tour.booked_slots = current_booked + people_count
-                tour.save()
+                    # Используем актуальные данные из заблокированного объекта tour
+                    available_slots = tour.total_slots - tour.booked_slots
 
-                # ОТПРАВКА ПИСЬМА О БРОНИРОВАНИИ ТУРА
-                if request.user.email:
-                    subject = "Спасибо за заказ! | Tralley-Valley"
-                    message = (
-                        f"Здравствуйте, {request.user.username}!\n\n"
-                        f"Спасибо за ваш заказ на сайте Tralley-Valley!\n"
-                        f"Вы успешно забронировали тур '{tour.name}' ({tour.country}) на {people_count} чел.\n\n"
-                        f"⏳ Мы уже начали оформление документов. Скоро мы пришлем ваши билеты и ваучеры! "
-                        f"Они будут доступны для скачивания в вашем личном кабинете за 2-3 дня до вылета.\n\n"
-                        f"Приятного ожидания путешествия! ✈️\n\n"
-                        f"С уважением, команда Tralley-Valley"
-                    )
-                    try:
-                        send_mail(
-                            subject=subject,
-                            message=message,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[request.user.email],
-                            fail_silently=True,
+                    if available_slots >= people_count:
+                        # Создаем бронирование
+                        booking = Booking.objects.create(
+                            user=request.user,
+                            tour=tour,
+                            people_count=people_count,
+                            user_comment=user_comment
                         )
-                    except Exception:
-                        pass
 
-                messages.success(request, f"Тур '{tour.name}' успешно забронирован!")
-                return redirect('profile')
-            else:
-                form.add_error('people_count', f"Недостаточно мест. Доступно всего: {available_slots}")
+                        # СОХРАНЯЕМ ВЫБРАННЫЕ УСЛУГИ
+                        if selected_services:
+                            booking.services.set(selected_services)
+
+                        # Обновляем количество занятых мест
+                        tour.booked_slots = tour.booked_slots + people_count
+                        tour.save()
+
+                        # Отправка письма
+                        if request.user.email:
+                            subject = "Спасибо за заказ! | Tralley-Valley"
+                            message = (
+                                f"Здравствуйте, {request.user.username}!\n\n"
+                                f"Вы успешно забронировали тур '{tour.name}' на {people_count} чел.\n\n"
+                                f"С уважением, команда Tralley-Valley"
+                            )
+                            try:
+                                send_mail(
+                                    subject,  # ← Исправлено: было 'Бронирование подтверждено'
+                                    message,  # ← Исправлено: было f'Вы успешно забронировали {tour.name}.'
+                                    settings.DEFAULT_FROM_EMAIL,
+                                    [request.user.email],
+                                    fail_silently=False,
+                                )
+                            except Exception as e:
+                                print(f"Ошибка отправки письма: {e}")  # Для отладки
+                                pass
+
+                        messages.success(request, f"Тур '{tour.name}' успешно забронирован!")
+                        return redirect('profile')
+                    else:
+                        form.add_error('people_count', f"Недостаточно мест. Доступно: {available_slots}")
+
+        except Tour.DoesNotExist:
+            messages.error(request, "Тур не найден.")
+            return redirect('catalog')
+
     else:
         form = BookingForm()
 
     return render(request, 'booking.html', {
-        'tour': tour,
+        'tour': get_object_or_404(Tour, pk=tour_id),
         'header_settings': header_settings,
         'form': form
     })
@@ -250,6 +270,11 @@ def book_tour(request, tour_id):
 @login_required
 def profile_view(request):
     user_bookings = Booking.objects.filter(user=request.user).select_related('tour')
+
+    now = timezone.now()
+    for booking in user_bookings:
+        booking.can_cancel_full_refund = (now - booking.created_at) < timedelta(hours=2)
+
     reviews = Review.objects.filter(user=request.user).order_by('-created_at')
 
     return render(request, 'profile.html', {
@@ -257,6 +282,25 @@ def profile_view(request):
         'bookings': user_bookings,
         'reviews': reviews,
     })
+
+
+@login_required
+def cancel_booking(request):
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')
+        booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+        # Логика смены статуса
+        booking.status = 'cancelled'
+        booking.save()
+
+        # (Опционально) Вернуть места обратно в тур
+        tour = booking.tour
+        tour.booked_slots = F('booked_slots') - booking.people_count
+        tour.save()
+
+        messages.success(request, "Запрос на отмену отправлен менеджеру.")
+    return redirect('profile')
 
 
 @login_required

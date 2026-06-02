@@ -16,6 +16,10 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.user_id} — {self.tour_id}"
 
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
 
 class Comment(models.Model):
     comment_id = models.AutoField(primary_key=True)
@@ -29,6 +33,10 @@ class Comment(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
+
 
 class AddService(models.Model):
     add_service_id = models.AutoField(primary_key=True)
@@ -41,6 +49,10 @@ class AddService(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'дополнительная услуга'
+        verbose_name_plural = 'дополнительные услуги'
+
 
 class Transport(models.Model):
     transport_id = models.AutoField(primary_key=True)
@@ -52,6 +64,11 @@ class Transport(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'транспорт'
+        verbose_name_plural = 'транспорт'
+
+
 
 class Hotel(models.Model):
     hotel_id = models.AutoField(primary_key=True)
@@ -62,6 +79,10 @@ class Hotel(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'отель'
+        verbose_name_plural = 'отели'
 
 
 class TourOperator(models.Model):
@@ -75,14 +96,16 @@ class TourOperator(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'туроператор'
+        verbose_name_plural = 'туроператоры'
+
 
 class Tour(models.Model):
     tour_id = models.AutoField(primary_key=True)
     country = models.CharField(max_length=100, default="")
     name = models.CharField(max_length=200, verbose_name="Название тура")
-
     slug = AutoSlugField(populate_from='name', unique=True, verbose_name="URL-слаг", default="")
-
     description = models.TextField()
     hotel_id = models.ForeignKey('Hotel', on_delete=models.CASCADE)
     transport_id = models.ForeignKey('Transport', on_delete=models.CASCADE)
@@ -104,7 +127,7 @@ class Tour(models.Model):
 
     total_slots = models.PositiveIntegerField(default=20, verbose_name="Всего мест")
     booked_slots = models.PositiveIntegerField(default=0, verbose_name="Занято мест")
-    services = models.TextField(default="")
+    services = models.TextField(default="", blank=True)
 
     @property
     def duration(self):
@@ -150,6 +173,21 @@ class Tour(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'тур'
+        verbose_name_plural = 'туры'
+
+class TourImage(models.Model):
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='images', verbose_name="Тур")
+    image = models.ImageField(upload_to='tours/gallery/', verbose_name="Изображение")
+
+    class Meta:
+        verbose_name = "Фотография тура"
+        verbose_name_plural = "Фотографии тура"
+
+    def __str__(self):
+        return f"Фото для {self.tour.name}"
+
 
 class Review(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='reviews')
@@ -161,6 +199,10 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.tour.name}'
+
+    class Meta:
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'отзывы'
 
 
 class Program(models.Model):
@@ -176,6 +218,10 @@ class Program(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'программа'
+        verbose_name_plural = 'программы'
+
 
 class HeaderSettings(models.Model):
     title = models.CharField(max_length=100, default="Настройки шапки", editable=False)
@@ -188,11 +234,16 @@ class HeaderSettings(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = 'настройки шапки'
 
 class Booking(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, verbose_name="Тур")
     people_count = models.IntegerField(default=1, verbose_name="Количество человек")
+    # Добавляем поле для услуг
+    services = models.ManyToManyField('AddService', blank=True, verbose_name="Доп. услуги")
+
     user_comment = models.TextField(blank=True, null=True, verbose_name="Комментарий")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата бронирования")
 
@@ -213,3 +264,4 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.tour.name} ({self.get_status_display()})"
+

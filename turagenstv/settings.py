@@ -12,23 +12,30 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from decouple import config
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# Простой хелпер для чтения (чтобы не писать каждый раз os.environ.get)
 def env(key, default=None):
     return os.environ.get(key, default)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+SECRET_KEY = '%p1tu**s9we2grjc^@8x9hj!)9hs&hkmji7nn6lc$2&cm7k&75'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hs9&(&1hoj752ik9&x-0qtjoei(y-cf)95j3mgl*ya1l2_baj^'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.yandex.ru')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='KADFLER@yandex.ru')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='mowvjmmudbtpwkjr')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='KADFLER@yandex.ru')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_ADMIN = DEFAULT_FROM_EMAIL
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
