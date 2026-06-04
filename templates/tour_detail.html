@@ -263,13 +263,13 @@
                         </span>
                         {% endif %}
 
-                        {% if s_tour.image_url %}
-                        <img src="{{ s_tour.image_url }}" class="card-img-top" alt="{{ s_tour.name }}"
-                             style="height: 200px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ s_tour.name }}"
-                             style="height: 200px; object-fit: cover;">
-                        {% endif %}
+                        {% if s_tour.image %}
+    <img src="{{ s_tour.image.url }}" class="card-img-top" alt="{{ s_tour.name }}"
+         style="height: 200px; object-fit: cover;">
+{% else %}
+    <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="{{ s_tour.name }}"
+         style="height: 200px; object-fit: cover;">
+{% endif %}
 
                         <div class="card-body d-flex flex-column bg-white text-dark p-4">
                             <h5 class="card-title mb-2">
